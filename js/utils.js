@@ -104,12 +104,12 @@ function fmtSet(a) {
 }
 
 /* ── 训练系统共享工具 ─────────────────────────────────── */
-const el = id => document.getElementById(id);
-const fmtNum = value => Number(value.toFixed(3)).toString();
-const svgText = (x, y, t, color = '#8a7e6b') => `<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
-const svgLine = (x1, y1, x2, y2, color = '#d4c8b8', w = 2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
-const svgDot = (x, y, color = blue) => `<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
-const svgWrap = (content, h = 260, title = '实验图') => `<svg role="img" aria-label="${title}" viewBox="0 0 600 ${h}">${content}</svg>`;
+var el = id => document.getElementById(id);
+var fmtNum = value => Number(value.toFixed(3)).toString();
+var svgText = (x, y, t, color = '#8a7e6b') => `<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
+var svgLine = (x1, y1, x2, y2, color = '#d4c8b8', w = 2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
+var svgDot = (x, y, color = blue) => `<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
+var svgWrap = (content, h = 260, title = '实验图') => `<svg role="img" aria-label="${title}" viewBox="0 0 600 ${h}">${content}</svg>`;
 
 /* ── KaTeX 公式渲染 ────────────────────────────────────── */
 function tex(s) {
