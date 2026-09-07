@@ -13,7 +13,7 @@ const document = {
   querySelectorAll() { return []; }
 };
 const ctx = vm.createContext({ document, window:{}, console });
-for (const name of ['training-data.js','training.js']) vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
+for (const name of ['js/utils.js','training-data.js','training.js']) vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
 const run = expression => vm.runInContext(expression,ctx);
 assert.equal(run('modules.length'),8);
 assert.equal(run('modules.reduce((n,m)=>n+m.qs.length,0)'),48);

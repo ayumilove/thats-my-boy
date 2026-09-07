@@ -1,7 +1,6 @@
 'use strict';
 const modules = window.TRAINING_MODULES;
-const el = id => document.getElementById(id);
-const fmt = value => Number(value.toFixed(3)).toString();
+const fmt = fmtNum;
 const labels = ['定位卡点','基础一','基础二','解释规律','迁移练习','独立复核'];
 let current = 0;
 const sessions = modules.map(() => fresh());
@@ -75,11 +74,6 @@ function showSummary(scroll = true) {
   el('session-summary').innerHTML=`<h2>本次练习情况</h2><p class="summarytext">\u201c本次通过\u201d仅表示复核题独立首答正确；未保存到设备或服务器。</p><div class="summarywrap"><table class="training-table"><thead><tr><th>专项</th><th>已答 / 6</th><th>需要回看的知识</th><th>状态</th></tr></thead><tbody>${modules.map((m,i)=>{const s=sessions[i],rs=Object.values(s.results),weak=rs.filter(r=>!r.independent).map(r=>r.skill+(r.stuck?'\uff08'+r.stuck+'\uff09':''));return `<tr><td>${m.title}</td><td>${rs.length}</td><td>${weak.length?weak.join('\u3001'):'尚无需要回看的记录'}</td><td>${statusText(s)||'未开始'}</td></tr>`}).join('')}</tbody></table></div>`;
   if(scroll) el('session-summary').scrollIntoView({behavior:'smooth',block:'start'});
 }
-const blue='#c85a3a',teal='#2a8f7e';
-const svgText=(x,y,t,color='#8a7e6b')=>`<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
-const svgLine=(x1,y1,x2,y2,color='#d4c8b8',w=2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
-const svgDot=(x,y,color=blue)=>`<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
-const svgWrap=(content,h=260)=>`<svg role="img" aria-label="${modules[current].title}实验图" viewBox="0 0 600 ${h}">${content}</svg>`;
 function range(key,label,min,max,step=1){return `<label class="control"><span>${label}</span><input type="range" data-lab="${key}" aria-label="${label}" min="${min}" max="${max}" step="${step}" value="${state().lab[key]}"><output id="value-${key}">${fmt(state().lab[key])}</output></label>`;}
 function readings(values){return '<div class="lab-readings">'+values.map(([k,v])=>`<div class="lab-reading">${k}<b>${v}</b></div>`).join('')+'</div>';}
 function renderLab() {
@@ -151,7 +145,7 @@ function drawLab() {
     values=[['y > 0 \u7684\u89e3\u96c6',positive],['x=1 \u4e24\u4fa7\u7b26\u53f7',kind==='quadratic'?(p.c===0?'\u4e24\u4fa7\u90fd\u4e3a\u96f6':'\u53d8\u53f7'):(p.power%2?'\u53d8\u53f7':'\u4e0d\u53d8\u53f7')]];
     note=kind==='quadratic'?'\u8d1f\u7cfb\u6570\u65f6\u6b63\u8d1f\u533a\u95f4\u7ffb\u8f6c\uff1ba=0 \u65f6\u6574\u6761\u66f2\u7ebf\u5728\u6a2a\u8f74\u4e0a\u3002\u6b64\u5904\u53ea\u663e\u793a\u4e25\u683c\u5927\u4e8e\u96f6\u7684\u89e3\u96c6\u3002':'\u56fa\u5b9a\u6700\u9ad8\u6b21\u9879\u7cfb\u6570\u4e3a\u6b63\u3002\u6839 1 \u7684\u91cd\u6570\u4e3a\u5076\u6570\u65f6\u4e0d\u53d8\u53f7\uff0c\u4e3a\u5947\u6570\u65f6\u53d8\u53f7\u3002\u82e5\u9898\u76ee\u542b\u7b49\u53f7\uff0c\u8fd8\u5fc5\u987b\u7eb3\u5165\u76f8\u5e94\u96f6\u70b9\u3002\u56fe\u5f62\u8d85\u51fa\u7eb5\u5411\u7a97\u53e3\u7684\u90e8\u5206\u88ab\u88c1\u5207\u3002';
   }
-  el('lab-figure').innerHTML=svgWrap(art);el('lab-values').innerHTML=readings(values);el('lab-description').textContent=note;
+  el('lab-figure').innerHTML=svgWrap(art,260,modules[current].title);el('lab-values').innerHTML=readings(values);el('lab-description').textContent=note;
 }
 el('restart').onclick=()=>{sessions[current]=fresh();render();};
 el('summary').onclick=showSummary;

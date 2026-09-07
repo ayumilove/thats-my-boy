@@ -330,6 +330,21 @@ svg text {
   fill: #6b5f4e;
 }
 
+/* JSXGraph 容器 */
+.jxgbox {
+  border-radius: 8px !important;
+  border: 1px solid var(--line) !important;
+  background: #fdfbf6 !important;
+}
+
+/* KaTeX 公式内联样式 */
+.katex-tex {
+  display: inline;
+}
+.katex { font-size: 1em; }
+.card .question .katex { font-size: 1.05em; }
+.feedback .katex { font-size: 1em; }
+
 .readout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

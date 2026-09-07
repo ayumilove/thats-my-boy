@@ -99,6 +99,41 @@ function setList(mask) {
   return Object.keys(members).filter(k => mask(members[k]));
 }
 
-function fmt(a) {
+function fmtSet(a) {
   return a.length ? '{' + a.join(', ') + '}' : '∅';
+}
+
+/* ── 训练系统共享工具 ─────────────────────────────────── */
+const el = id => document.getElementById(id);
+const fmtNum = value => Number(value.toFixed(3)).toString();
+const svgText = (x, y, t, color = '#8a7e6b') => `<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
+const svgLine = (x1, y1, x2, y2, color = '#d4c8b8', w = 2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
+const svgDot = (x, y, color = blue) => `<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
+const svgWrap = (content, h = 260, title = '实验图') => `<svg role="img" aria-label="${title}" viewBox="0 0 600 ${h}">${content}</svg>`;
+
+/* ── KaTeX 公式渲染 ────────────────────────────────────── */
+function tex(s) {
+  return s.replace(/\$([^$]+)\$/g, '<span class="katex-tex">$1</span>');
+}
+
+function renderMath(container) {
+  if (typeof katex === 'undefined' || !container) return;
+  container.querySelectorAll('.katex-tex').forEach(el => {
+    try { katex.render(el.textContent, el, { throwOnError: false }); } catch (_) {}
+  });
+}
+
+/* ── JSXGraph 管理 ─────────────────────────────────────── */
+let _jxgBoards = [];
+
+function createBoard(divId, opts) {
+  if (typeof JXG === 'undefined') return null;
+  const board = JXG.JSXGraph.initBoard(divId, opts);
+  _jxgBoards.push(board);
+  return board;
+}
+
+function destroyBoards() {
+  _jxgBoards.forEach(b => { try { JXG.JSXGraph.freeBoard(b); } catch (_) {} });
+  _jxgBoards = [];
 }

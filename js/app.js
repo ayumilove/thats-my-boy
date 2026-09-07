@@ -90,7 +90,7 @@ function task() {
     /* 预测阶段 */
     html = `<span class="badge">01 · 先预测</span>`
       + `<h2>你的直觉是什么？</h2>`
-      + `<p class="question">${d.q}</p>`
+      + `<p class="question">${tex(d.q)}</p>`
       + options(d.opts, choice, 'predict')
       + `<button class="primary" id="start" ${choice === null ? 'disabled' : ''}>带着预测，开始实验 →</button>`
       + `<p class="notes">猜错也没关系，实验会帮助你修正理解。</p>`;
@@ -107,18 +107,18 @@ function task() {
     ];
     html = `<span class="badge">02 · 做实验</span>`
       + `<h2>让变化给你证据</h2>`
-      + `<p class="question">${hints[idx]}</p>`
+      + `<p class="question">${tex(hints[idx])}</p>`
       + `<div class="notes">你的预测：${d.opts[choice]}</div>`
-      + (checked ? `<div class="feedback ${choice !== d.answer ? 'wrong' : ''}">${choice === d.answer ? '预测得到验证。' : '试着修正最初的判断。'}${d.why}</div>` : '')
+      + (checked ? `<div class="feedback ${choice !== d.answer ? 'wrong' : ''}">${choice === d.answer ? '预测得到验证。' : '试着修正最初的判断。'}${tex(d.why)}</div>` : '')
       + `<button class="primary" id="observe">${checked ? '我理解了，解释原因 →' : '查看实验结论'}</button>`
       + `<p class="notes">试试"保留对比"，检查改变前后的差异。</p>`;
   } else if (!transfer) {
     /* 解释阶段 */
     html = `<span class="badge">03 · 解释</span>`
       + `<h2>不只看到，还要说清</h2>`
-      + `<p class="question">${d.eq}</p>`
+      + `<p class="question">${tex(d.eq)}</p>`
       + options(d.eopts, exchoice, 'explain')
-      + (exchecked ? `<div class="feedback ${exchoice !== d.ea ? 'wrong' : ''}">${exchoice === d.ea ? '解释正确。' : '再想一想。'}${d.ewhy}</div>` : '')
+      + (exchecked ? `<div class="feedback ${exchoice !== d.ea ? 'wrong' : ''}">${exchoice === d.ea ? '解释正确。' : '再想一想。'}${tex(d.ewhy)}</div>` : '')
       + `<button class="primary" id="excheck" ${exchoice === null ? 'disabled' : ''}>${exchecked && exchoice === d.ea ? '换个情境，再试一次 →' : '检验解释'}</button>`;
   } else {
     /* 迁移挑战 */
@@ -130,14 +130,15 @@ function task() {
       : '';
     html = `<span class="badge">迁移挑战</span>`
       + `<h2>换个条件，你会了吗？</h2>`
-      + `<p class="question">${d.transfer}</p>`
+      + `<p class="question">${tex(d.transfer)}</p>`
       + options(d.topts, tchoice, 'transfer')
-      + (tchecked ? `<div class="feedback ${tchoice !== d.ta ? 'wrong' : ''}">${tchoice === d.ta ? '挑战完成！' : '还差一步。'}${d.twhy}</div>` : '')
+      + (tchecked ? `<div class="feedback ${tchoice !== d.ta ? 'wrong' : ''}">${tchoice === d.ta ? '挑战完成！' : '还差一步。'}${tex(d.twhy)}</div>` : '')
       + `<button class="primary" id="tcheck" ${tchoice === null ? 'disabled' : ''}>${tchecked && tchoice === d.ta ? '探索下一个专题 →' : '检验判断'}</button>`
       + (tchecked && tchoice === d.ta ? trainingLinks : '');
   }
 
   $('#task').innerHTML = html;
+  renderMath($('#task'));
 
   /* 事件绑定 */
   document.querySelectorAll('[data-predict]').forEach(b =>
@@ -188,21 +189,22 @@ function renderControls() {
 
   /* 二次函数 */
   if (idx === 1)
-    html += slider('a', '系数 a', -3, 3, .1) + slider('b', '系数 b', -5, 5, .1) + slider('c', '系数 c', -5, 5, .1);
+    html += '<div class="notes">拖动图上的滑块 a、b、c 改变函数。</div>';
 
   /* 方程与不等式 */
   if (idx === 2) {
     $('#toolbar').innerHTML = ['x² = k', 'x² < k', 'x² ≤ k'].map((v, i) =>
       `<button data-eq="${i}" class="pill ${p.kind === i ? 'active' : ''}">${v}</button>`
     ).join('');
-    html += slider('k', '水平线 k', -3, 6, .1);
+    html += '<div class="notes">拖动图上的滑块 k 调整水平线高度。</div>';
   }
 
   /* 单调性与奇偶性 */
   if (idx === 3)
     html += `<label class="control"><span>函数</span><select aria-label="函数" id="function" ${stage === 0 ? 'disabled' : ''}>`
       + '<option value="0">x²</option><option value="1">x² + 2</option><option value="2">(x − 1)²</option><option value="3">x³</option>'
-      + '</select></label>' + slider('x', '取样点 x', -3, 3, .1);
+      + '</select></label>'
+      + '<div class="notes">拖动图上的滑块 x 移动取样点。</div>';
 
   /* 路程与位移 */
   if (idx === 4)
@@ -217,7 +219,7 @@ function renderControls() {
       + '</div>'
       + slider('v', '初速度 / m·s⁻¹', -5, 5, .5)
       + slider('acc', '加速度 / m·s⁻²', -3, 3, .5)
-      + slider('t', '时间 / s', 0, 6, .1);
+      + '<div class="notes">拖动 x–t 图上的滑块 t 观察运动。</div>';
 
   /* 力、质量与加速度 */
   if (idx === 6)
