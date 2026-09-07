@@ -18,8 +18,18 @@ function render() {
   const m=modules[current],s=state();
   renderNav(); el('current-name').textContent=m.title; el('module-title').textContent=m.title; el('level').textContent=m.level; el('goal').textContent=m.goal;
   el('training-steps').innerHTML=labels.map((l,i)=>`<div class="step ${i===s.step&&!s.complete?'current':s.results[i]?'done':''}">${i+1} · ${l}</div>`).join('');
-  renderQuestion(); renderLab();
+  renderQuestion(); renderLab(); renderTopicLink();
   if(el('session-summary').innerHTML) showSummary(false);
+}
+function renderTopicLink() {
+  const m=modules[current];
+  const topicNames={sets:'集合与集合运算',quad:'二次函数的参数',equation:'方程与不等式',property:'单调性与奇偶性',distance:'路程与位移',motion:'匀变速直线运动',force:'力、质量与加速度'};
+  const topicIdx={sets:0,quad:1,equation:2,property:3,distance:4,motion:5,force:6};
+  const link=el('topic-link');
+  if(link&&m.relatedTopic){
+    const idx=topicIdx[m.relatedTopic];
+    link.innerHTML=`<a href="index.html#topic=${idx}" class="topic-back">← 返回实验：${topicNames[m.relatedTopic]}</a>`;
+  }
 }
 function renderQuestion() {
   const s=state(),q=question();
@@ -65,9 +75,10 @@ function showSummary(scroll = true) {
   el('session-summary').innerHTML=`<h2>本次练习情况</h2><p class="summarytext">\u201c本次通过\u201d仅表示复核题独立首答正确；未保存到设备或服务器。</p><div class="summarywrap"><table class="training-table"><thead><tr><th>专项</th><th>已答 / 6</th><th>需要回看的知识</th><th>状态</th></tr></thead><tbody>${modules.map((m,i)=>{const s=sessions[i],rs=Object.values(s.results),weak=rs.filter(r=>!r.independent).map(r=>r.skill+(r.stuck?'\uff08'+r.stuck+'\uff09':''));return `<tr><td>${m.title}</td><td>${rs.length}</td><td>${weak.length?weak.join('\u3001'):'尚无需要回看的记录'}</td><td>${statusText(s)||'未开始'}</td></tr>`}).join('')}</tbody></table></div>`;
   if(scroll) el('session-summary').scrollIntoView({behavior:'smooth',block:'start'});
 }
-const svgText=(x,y,t,color='#637a91')=>`<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
-const svgLine=(x1,y1,x2,y2,color='#a5b8cd',w=2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
-const svgDot=(x,y,color='#2364e7')=>`<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
+const blue='#c85a3a',teal='#2a8f7e';
+const svgText=(x,y,t,color='#8a7e6b')=>`<text x="${x}" y="${y}" style="fill:${color}">${t}</text>`;
+const svgLine=(x1,y1,x2,y2,color='#d4c8b8',w=2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}"/>`;
+const svgDot=(x,y,color=blue)=>`<circle cx="${x}" cy="${y}" r="6" fill="${color}"/>`;
 const svgWrap=(content,h=260)=>`<svg role="img" aria-label="${modules[current].title}实验图" viewBox="0 0 600 ${h}">${content}</svg>`;
 function range(key,label,min,max,step=1){return `<label class="control"><span>${label}</span><input type="range" data-lab="${key}" aria-label="${label}" min="${min}" max="${max}" step="${step}" value="${state().lab[key]}"><output id="value-${key}">${fmt(state().lab[key])}</output></label>`;}
 function readings(values){return '<div class="lab-readings">'+values.map(([k,v])=>`<div class="lab-reading">${k}<b>${v}</b></div>`).join('')+'</div>';}
@@ -96,36 +107,36 @@ function segmentModel(L,t1,t2) {
 }
 function drawLab() {
   const p=state().lab,kind=modules[current].lab;let art='',values=[],note='';
-  const timeline=(start,d1,d2)=>{const end=start+d1+d2,X=t=>55+(t-start)/(d1+d2)*480;let z=svgLine(55,100,535,100);z+=svgLine(X(start),100,X(start+d1),100,'#2364e7',9)+svgLine(X(start+d1),100,X(end),100,'#009c96',9);[start,start+d1,end].forEach(t=>z+=svgLine(X(t),90,X(t),112)+svgText(X(t)-14,137,fmt(t)+' s'));[start+d1/2,start+d1+d2/2].forEach((t,i)=>z+=svgDot(X(t),100,i?'#009c96':'#2364e7')+svgText(X(t)-25,68,fmt(t)+' s'));return z;};
+  const timeline=(start,d1,d2)=>{const end=start+d1+d2,X=t=>55+(t-start)/(d1+d2)*480;let z=svgLine(55,100,535,100);z+=svgLine(X(start),100,X(start+d1),100,'#c85a3a',9)+svgLine(X(start+d1),100,X(end),100,'#2a8f7e',9);[start,start+d1,end].forEach(t=>z+=svgLine(X(t),90,X(t),112)+svgText(X(t)-14,137,fmt(t)+' s'));[start+d1/2,start+d1+d2/2].forEach((t,i)=>z+=svgDot(X(t),100,i?'#2a8f7e':'#c85a3a')+svgText(X(t)-25,68,fmt(t)+' s'));return z;};
   if(kind==='time'){
     art=svgText(30,24,`\u7b2c ${p.n} \u79d2\u5185\uff1a${p.n-1}\uff5e${p.n} s\uff1b\u7b2c ${p.n} \u79d2\u672b\uff1at=${p.n} s`)+timeline(0,p.t1,p.t2)+svgText(35,185,'\u5706\u70b9\u4ee3\u8868\u6bcf\u6bb5\u81ea\u5df1\u7684\u4e2d\u95f4\u65f6\u523b');
     values=[['\u7b2c\u4e00\u6bb5\u4e2d\u70b9',fmt(p.t1/2)+' s'],['\u7b2c\u4e8c\u6bb5\u4e2d\u70b9',fmt(p.t1+p.t2/2)+' s'],['\u4e2d\u70b9\u95f4\u9694',fmt((p.t1+p.t2)/2)+' s'],['\u7b2c n \u79d2\u4e0e\u4e0b\u4e00\u79d2\u5408\u5e76',`[${p.n-1}, ${p.n+1}] s`]];
     note='\u4e0a\u65b9\u6587\u5b57\u968f n \u6539\u53d8\uff1b\u65f6\u95f4\u8f74\u5355\u72ec\u5c55\u793a\u4ece 0 \u5f00\u59cb\u7684\u4e24\u6bb5\u53ef\u53d8\u65f6\u957f\u3002\u5148\u5206\u522b\u6c42\u4e2d\u70b9\uff0c\u518d\u76f8\u51cf\u3002';
   }
   if(kind==='rate'){
-    const s1=p.v1*p.t1,s2=p.v2*p.t2,total=s1+s2;art=svgText(30,35,'\u4e24\u6bb5\u540c\u5411\u8fd0\u52a8\uff1a\u6761\u5f62\u957f\u5ea6\u8868\u793a\u4f4d\u79fb')+`<rect x="35" y="75" width="${510*s1/total}" height="46" fill="#2364e7"/><rect x="${35+510*s1/total}" y="75" width="${510*s2/total}" height="46" fill="#009c96"/>`+svgText(35,159,`\u7b2c\u4e00\u6bb5 ${fmt(s1)} m / ${fmt(p.t1)} s`)+svgText(35,195,`\u7b2c\u4e8c\u6bb5 ${fmt(s2)} m / ${fmt(p.t2)} s`);
+    const s1=p.v1*p.t1,s2=p.v2*p.t2,total=s1+s2;art=svgText(30,35,'\u4e24\u6bb5\u540c\u5411\u8fd0\u52a8\uff1a\u6761\u5f62\u957f\u5ea6\u8868\u793a\u4f4d\u79fb')+`<rect x="35" y="75" width="${510*s1/total}" height="46" fill="#c85a3a"/><rect x="${35+510*s1/total}" y="75" width="${510*s2/total}" height="46" fill="#2a8f7e"/>`+svgText(35,159,`\u7b2c\u4e00\u6bb5 ${fmt(s1)} m / ${fmt(p.t1)} s`)+svgText(35,195,`\u7b2c\u4e8c\u6bb5 ${fmt(s2)} m / ${fmt(p.t2)} s`);
     values=[['\u603b\u4f4d\u79fb / \u603b\u65f6\u95f4',fmt(total/(p.t1+p.t2))+' m/s'],['\u4e24\u6bb5\u901f\u5ea6\u76f4\u63a5\u5e73\u5747',fmt((p.v1+p.v2)/2)+' m/s']];note='\u4e24\u6bb5\u5206\u522b\u6309\u56fa\u5b9a\u901f\u5ea6\u8fd0\u52a8\uff1b\u5168\u7a0b\u4e0d\u8981\u6c42\u5300\u53d8\u901f\u3002\u65f6\u95f4\u76f8\u7b49\u6216\u901f\u5ea6\u76f8\u7b49\u65f6\uff0c\u8fd9\u4e24\u4e2a\u5e73\u5747\u503c\u76f8\u7b49\uff1b\u4e00\u822c\u9700\u6309\u5404\u6bb5\u65f6\u95f4\u52a0\u6743\u3002';
   }
   if(kind==='ratio'){
-    const v=p.k*p.u,delta=v-p.u,mean=(v+p.u)/2;art=svgText(30,30,'\u672b\u901f\u5ea6 = \u539f\u6709\u901f\u5ea6 + \u901f\u5ea6\u589e\u52a0\u91cf');for(let i=0;i<p.k;i++)art+=`<rect x="${35+i*95}" y="85" width="88" height="55" rx="5" fill="${i===0?'#2364e7':'#009c96'}"/>`+svgText(57+i*95,120,fmt(p.u),'white');art+=svgText(35,180,`1 \u4efd\u539f\u6709 + ${p.k-1} \u4efd\u589e\u52a0 = ${p.k} \u4efd\u672b\u901f\u5ea6`);values=[['\u0394v = v\u672b \u2212 v\u521d',fmt(delta)+' m/s'],['\u5e73\u5747\u901f\u5ea6',fmt(mean)+' m/s'],['\u4f4d\u79fb = \u5e73\u5747\u901f\u5ea6 \u00d7 t',fmt(mean*p.T)+' m'],['a = \u0394v / t',fmt(delta/p.T)+' m/s\u00b2']];note='\u4fdd\u6301\u5300\u52a0\u901f\u4e14\u540c\u5411\u3002\u672b\u901f\u5ea6\u201c\u53d8\u4e3a k \u500d\u201d\uff0c\u901f\u5ea6\u53d8\u5316\u91cf\u662f (k\u22121)u\u3002\u6bcf\u4e2a\u65b9\u5757\u4ee3\u8868\u4e00\u4efd\u521d\u901f\u5ea6\uff0c\u4e0d\u662f\u4f4d\u79fb\u3002';
+    const v=p.k*p.u,delta=v-p.u,mean=(v+p.u)/2;art=svgText(30,30,'\u672b\u901f\u5ea6 = \u539f\u6709\u901f\u5ea6 + \u901f\u5ea6\u589e\u52a0\u91cf');for(let i=0;i<p.k;i++)art+=`<rect x="${35+i*95}" y="85" width="88" height="55" rx="5" fill="${i===0?'#c85a3a':'#2a8f7e'}"/>`+svgText(57+i*95,120,fmt(p.u),'white');art+=svgText(35,180,`1 \u4efd\u539f\u6709 + ${p.k-1} \u4efd\u589e\u52a0 = ${p.k} \u4efd\u672b\u901f\u5ea6`);values=[['\u0394v = v\u672b \u2212 v\u521d',fmt(delta)+' m/s'],['\u5e73\u5747\u901f\u5ea6',fmt(mean)+' m/s'],['\u4f4d\u79fb = \u5e73\u5747\u901f\u5ea6 \u00d7 t',fmt(mean*p.T)+' m'],['a = \u0394v / t',fmt(delta/p.T)+' m/s\u00b2']];note='\u4fdd\u6301\u5300\u52a0\u901f\u4e14\u540c\u5411\u3002\u672b\u901f\u5ea6\u201c\u53d8\u4e3a k \u500d\u201d\uff0c\u901f\u5ea6\u53d8\u5316\u91cf\u662f (k\u22121)u\u3002\u6bcf\u4e2a\u65b9\u5757\u4ee3\u8868\u4e00\u4efd\u521d\u901f\u5ea6\uff0c\u4e0d\u662f\u4f4d\u79fb\u3002';
   }
   if(kind==='velocity'){
     const total=2*p.T,end=p.u+p.a*total,X=t=>50+t/total*480,Y=v=>210-v/Math.max(1,end)*160;
-    art=svgLine(50,210,550,210)+svgLine(50,210,50,35)+svgLine(X(0),Y(p.u),X(total),Y(end),'#2364e7',3);
+    art=svgLine(50,210,550,210)+svgLine(50,210,50,35)+svgLine(X(0),Y(p.u),X(total),Y(end),'#c85a3a',3);
     [0,p.T,total].forEach(t=>art+=svgDot(X(t),Y(p.u+p.a*t))+svgText(X(t)-10,240,fmt(t)+' s'));
     art+=svgText(65,28,'v / m\u00b7s\u207b\u00b9')+svgText(400,28,'\u76f4\u7ebf\uff1a\u52a0\u901f\u5ea6\u6052\u5b9a');
     const s1=p.u*p.T+.5*p.a*p.T*p.T,s2=(p.u+p.a*p.T)*p.T+.5*p.a*p.T*p.T;
     values=[['\u7b2c\u4e00\u6bb5\u4f4d\u79fb',fmt(s1)+' m'],['\u7b2c\u4e8c\u6bb5\u4f4d\u79fb',fmt(s2)+' m'],['\u4ea4\u754c\u65f6\u523b\u901f\u5ea6',fmt(p.u+p.a*p.T)+' m/s'],['(s\u2081+s\u2082)/(2T)',fmt((s1+s2)/(2*p.T))+' m/s']];note='\u56fe\u4e0a\u6a2a\u5750\u6807\u662f\u65f6\u95f4\u3002\u7b49\u65f6\u4e24\u6bb5\u7684\u4ea4\u754c\u70b9\u4e5f\u662f\u6574\u4e2a\u65f6\u95f4\u533a\u95f4\u7684\u4e2d\u70b9\uff1b\u8be5\u5904\u901f\u5ea6\u7b49\u4e8e\u6574\u4e2a\u533a\u95f4\u5e73\u5747\u901f\u5ea6\u3002\u4e0d\u662f\u4e2d\u95f4\u4f4d\u7f6e\u5904\u7684\u901f\u5ea6\u3002';
   }
   if(kind==='segments'){
-    const z=segmentModel(p.L,p.t1,p.t2);art=svgText(30,24,`\u4e24\u6bb5\u8ddd\u79bb\u5747\u4e3a ${p.L} m\uff1b\u5706\u70b9\u662f\u5e73\u5747\u901f\u5ea6\u5bf9\u5e94\u7684\u65f6\u523b`)+timeline(0,p.t1,p.t2)+svgText(35,187,`v(${fmt(z.mid1)}) = ${fmt(z.v1)} m/s`,'#2364e7')+svgText(35,224,`v(${fmt(z.mid2)}) = ${fmt(z.v2)} m/s`,'#009c96');
+    const z=segmentModel(p.L,p.t1,p.t2);art=svgText(30,24,`\u4e24\u6bb5\u8ddd\u79bb\u5747\u4e3a ${p.L} m\uff1b\u5706\u70b9\u662f\u5e73\u5747\u901f\u5ea6\u5bf9\u5e94\u7684\u65f6\u523b`)+timeline(0,p.t1,p.t2)+svgText(35,187,`v(${fmt(z.mid1)}) = ${fmt(z.v1)} m/s`,'#c85a3a')+svgText(35,224,`v(${fmt(z.mid2)}) = ${fmt(z.v2)} m/s`,'#2a8f7e');
     values=[['\u901f\u5ea6\u4e4b\u5dee',fmt(z.v2-z.v1)+' m/s'],['\u5bf9\u5e94\u65f6\u523b\u4e4b\u5dee',fmt(z.mid2-z.mid1)+' s'],['a = \u0394v / \u0394t',fmt(z.a)+' m/s\u00b2'],['\u7531\u6761\u4ef6\u53cd\u63a8\u521d\u901f\u5ea6',fmt(z.u)+' m/s']];
     note=z.u<0?'\u8fd9\u7ec4\u53c2\u6570\u53cd\u63a8\u51fa\u8d1f\u521d\u901f\u5ea6\uff0c\u4e0d\u80fd\u4f5c\u4e3a\u201c\u5168\u7a0b\u540c\u5411\u3001\u4e24\u6bb5\u8def\u7a0b\u5747\u4e3a\u7ed9\u5b9a\u503c\u201d\u7684\u6848\u4f8b\uff1b\u8fd9\u91cc\u53ea\u80fd\u4f5c\u4e24\u6bb5\u6709\u5411\u4f4d\u79fb\u7684\u4ee3\u6570\u6f14\u793a\u3002\u8bf7\u8c03\u56de 2 s\u30011 s\u3002':'\u5047\u8bbe\u5168\u7a0b\u5300\u53d8\u901f\u4e14\u540c\u5411\uff0c\u521d\u901f\u5ea6\u7531\u6761\u4ef6\u53cd\u63a8\uff0c\u5e76\u672a\u5047\u5b9a\u4ece\u9759\u6b62\u5f00\u59cb\u3002\u5206\u6bcd\u5fc5\u987b\u4e0e\u6240\u7528\u901f\u5ea6\u503c\u7684\u4e24\u4e2a\u65f6\u523b\u5bf9\u5e94\u3002';
   }
   if(kind==='sign'){
     const X=x=>300+x/16*255;art=svgText(25,30,'\u539f\u6765 2 < 5\uff1b\u540c\u4e58\u4e00\u4e2a\u6570\u540e\uff0c\u6bd4\u8f83\u4e24\u4e2a\u65b0\u4f4d\u7f6e')+svgLine(35,135,565,135);
     for(let x=-15;x<=15;x+=5)art+=svgLine(X(x),130,X(x),142)+svgText(X(x)-12,170,x);
-    art+=svgDot(X(2*p.m),135,'#2364e7')+svgDot(X(5*p.m),135,'#009c96')+svgText(30,220,`\u84dd\u70b9\uff1a2\u00d7${fmt(p.m)}\uff1b\u7eff\u70b9\uff1a5\u00d7${fmt(p.m)}`);
+    art+=svgDot(X(2*p.m),135,'#c85a3a')+svgDot(X(5*p.m),135,'#2a8f7e')+svgText(30,220,`\u84dd\u70b9\uff1a2\u00d7${fmt(p.m)}\uff1b\u7eff\u70b9\uff1a5\u00d7${fmt(p.m)}`);
     values=[['\u4e24\u4e2a\u7ed3\u679c',`${fmt(2*p.m)} ${p.m>0?'<':p.m<0?'>':'='} ${fmt(5*p.m)}`],['\u6bd4\u8f83\u89c4\u5219',p.m>0?'\u6b21\u5e8f\u4fdd\u7559':p.m<0?'\u6b21\u5e8f\u53cd\u8f6c':'\u5747\u4e3a\u96f6\uff0c\u4fe1\u606f\u4e22\u5931']];note='\u4e58\u8d1f\u6570\u4f1a\u7ffb\u8f6c\u6570\u8f74\u4e0a\u7684\u5de6\u53f3\u6b21\u5e8f\u3002\u4e58\u96f6\u540e\u4e0d\u80fd\u4fdd\u7559\u4e25\u683c\u4e0d\u7b49\u5f0f\uff0c\u4e5f\u4e0d\u80fd\u518d\u901a\u8fc7\u9664\u96f6\u8fd8\u539f\u3002';
   }
   if(kind==='quadratic'||kind==='roots'){
@@ -135,7 +146,7 @@ function drawLab() {
     art+='<defs><clipPath id="curveclip"><rect x="50" y="40" width="500" height="180"/></clipPath></defs>'+svgLine(50,130,550,130)+svgLine(X(0),40,X(0),220);
     for(let x=-1;x<=5;x++)art+=svgLine(X(x),126,X(x),135)+svgText(X(x)-5,245,x);
     const path=Array.from({length:361},(_,i)=>{const x=-1+i/60;return (i?'L':'M')+X(x)+','+Y(f(x))}).join(' ');
-    art+=`<path d="${path}" fill="none" stroke="#2364e7" stroke-width="3" clip-path="url(#curveclip)"/>`+svgDot(X(1),130)+svgDot(X(3),130);
+    art+=`<path d="${path}" fill="none" stroke="#c85a3a" stroke-width="3" clip-path="url(#curveclip)"/>`+svgDot(X(1),130)+svgDot(X(3),130);
     const positive=kind==='quadratic'?(p.c>0?'(\u2212\u221e,1) \u222a (3,+\u221e)':p.c<0?'(1,3)':'\u2205'):(p.power%2?'(\u2212\u221e,1) \u222a (3,+\u221e)':'(3,+\u221e)');
     values=[['y > 0 \u7684\u89e3\u96c6',positive],['x=1 \u4e24\u4fa7\u7b26\u53f7',kind==='quadratic'?(p.c===0?'\u4e24\u4fa7\u90fd\u4e3a\u96f6':'\u53d8\u53f7'):(p.power%2?'\u53d8\u53f7':'\u4e0d\u53d8\u53f7')]];
     note=kind==='quadratic'?'\u8d1f\u7cfb\u6570\u65f6\u6b63\u8d1f\u533a\u95f4\u7ffb\u8f6c\uff1ba=0 \u65f6\u6574\u6761\u66f2\u7ebf\u5728\u6a2a\u8f74\u4e0a\u3002\u6b64\u5904\u53ea\u663e\u793a\u4e25\u683c\u5927\u4e8e\u96f6\u7684\u89e3\u96c6\u3002':'\u56fa\u5b9a\u6700\u9ad8\u6b21\u9879\u7cfb\u6570\u4e3a\u6b63\u3002\u6839 1 \u7684\u91cd\u6570\u4e3a\u5076\u6570\u65f6\u4e0d\u53d8\u53f7\uff0c\u4e3a\u5947\u6570\u65f6\u53d8\u53f7\u3002\u82e5\u9898\u76ee\u542b\u7b49\u53f7\uff0c\u8fd8\u5fc5\u987b\u7eb3\u5165\u76f8\u5e94\u96f6\u70b9\u3002\u56fe\u5f62\u8d85\u51fa\u7eb5\u5411\u7a97\u53e3\u7684\u90e8\u5206\u88ab\u88c1\u5207\u3002';

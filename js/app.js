@@ -122,12 +122,19 @@ function task() {
       + `<button class="primary" id="excheck" ${exchoice === null ? 'disabled' : ''}>${exchecked && exchoice === d.ea ? '换个情境，再试一次 →' : '检验解释'}</button>`;
   } else {
     /* 迁移挑战 */
+    const trainingLinks = d.relatedTraining
+      ? '<div class="training-hint"><strong>需要补基础？</strong><p>' + d.relatedTraining.map(i => {
+          const names = ['时刻与中点','平均量与单位','倍数与列式','中时速度','等距离不等时间','负数与不等号','二次不等式','穿根法与重根'];
+          return `<a href="training.html#module=${i}" class="training-link">${names[i]}</a>`;
+        }).join(' · ') + '</p></div>'
+      : '';
     html = `<span class="badge">迁移挑战</span>`
       + `<h2>换个条件，你会了吗？</h2>`
       + `<p class="question">${d.transfer}</p>`
       + options(d.topts, tchoice, 'transfer')
       + (tchecked ? `<div class="feedback ${tchoice !== d.ta ? 'wrong' : ''}">${tchoice === d.ta ? '挑战完成！' : '还差一步。'}${d.twhy}</div>` : '')
-      + `<button class="primary" id="tcheck" ${tchoice === null ? 'disabled' : ''}>${tchecked && tchoice === d.ta ? '探索下一个专题 →' : '检验判断'}</button>`;
+      + `<button class="primary" id="tcheck" ${tchoice === null ? 'disabled' : ''}>${tchecked && tchoice === d.ta ? '探索下一个专题 →' : '检验判断'}</button>`
+      + (tchecked && tchoice === d.ta ? trainingLinks : '');
   }
 
   $('#task').innerHTML = html;
@@ -330,4 +337,5 @@ $('#clearcompare').onclick = () => { saved = null; draw(); showComparison(); };
 $('#reset').onclick = () => init(idx);
 
 /* ── 启动 ──────────────────────────────────────────────── */
-init(0);
+const hashTopic = location.hash.match(/topic=(\d)/);
+init(hashTopic ? +hashTopic[1] : 0);

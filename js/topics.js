@@ -7,6 +7,7 @@ const topics = [
   // ── 数学实验室 ──────────────────────────────────────────
   {
     id: 'sets', name: '集合与集合运算', icon: '∩',
+    relatedTraining: null,
     desc: '移动一个元素，观察集合之间的关系如何改变。',
     tip: '从"属于谁"开始',
     note: '全集 U 固定为 {1,2,3,4,5,6,7,8}。',
@@ -23,6 +24,7 @@ const topics = [
   },
   {
     id: 'quad', name: '二次函数的参数', icon: '∿',
+    relatedTraining: [6, 7],
     desc: '改变系数，让公式与抛物线同步变化。',
     tip: '一次只改变一个变量',
     note: 'a=0 时退化为一次函数或常函数。',
@@ -39,6 +41,7 @@ const topics = [
   },
   {
     id: 'equation', name: '方程与不等式', icon: '≶',
+    relatedTraining: [5, 6, 7],
     desc: '把代数问题变成交点与上下位置的比较。',
     tip: '让"解"回到横坐标',
     note: '比较 y=x² 与水平线 y=k；取实数范围。',
@@ -55,6 +58,7 @@ const topics = [
   },
   {
     id: 'property', name: '单调性与奇偶性', icon: '↗',
+    relatedTraining: null,
     desc: '移动取样点，用图像检验判断，用定义解释规律。',
     tip: '有限观察不能代替证明',
     note: '以下函数的定义域均为 R。',
@@ -73,6 +77,7 @@ const topics = [
   // ── 物理实验室 ──────────────────────────────────────────
   {
     id: 'distance', name: '路程与位移', icon: '⇄',
+    relatedTraining: [1],
     desc: '走过的轨迹与起终点的变化，并不是同一件事。',
     tip: '先选参考方向',
     note: '一维运动：先从 0 向右，再向左；向右为正。',
@@ -89,6 +94,7 @@ const topics = [
   },
   {
     id: 'motion', name: '匀变速直线运动', icon: '⌁',
+    relatedTraining: [0, 2, 3, 4],
     desc: '一起观察物体运动、x–t 图像和 v–t 图像。',
     tip: '读懂斜率和面积',
     note: 'x₀=0；加速度恒定；向右为正，可发生反向运动。',
@@ -105,6 +111,7 @@ const topics = [
   },
   {
     id: 'force', name: '力、质量与加速度', icon: '→',
+    relatedTraining: [2],
     desc: '控制一个变量，寻找运动变化背后的因果关系。',
     tip: '先分清合力与单个力',
     note: '理想水平面无摩擦；两个水平力；竖直方向受力平衡。',

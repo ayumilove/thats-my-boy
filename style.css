@@ -665,3 +665,10 @@ select {
 .brandmark { flex-shrink: 0; width: 36px; height: 40px; font-size: 29px; }
 .brand b { font-size: 12px; letter-spacing: 1px; margin-top: 6px; }
 .asidebottom strong { font-size: 14px; }
+
+/* Training links */
+.training-hint { margin-top: 18px; padding: 12px; background: #faf5eb; border-radius: 6px; border-left: 3px solid var(--accent); }
+.training-hint strong { font-size: 14px; color: var(--accent); }
+.training-hint p { margin: 6px 0 0; font-size: 13px; }
+.training-link { color: var(--accent); text-decoration: none; padding: 2px 6px; background: #fdfbf6; border: 1px solid #e8c9b8; border-radius: 4px; font-size: 12px; display: inline-block; margin: 2px; }
+.training-link:hover { background: #faf5eb; border-color: var(--accent); }

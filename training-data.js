@@ -6,6 +6,7 @@ window.TRAINING_MODULES = [
     "level": "小学时间理解 → 高中运动学",
     "goal": "把“第 n 秒内”“第 n 秒末”准确放到时间轴上。",
     "lab": "time",
+    "relatedTopic": "motion",
     "qs": [
       {
         "text": "第 4 秒内与第 5 秒内，两段时间合起来的中间时刻是？",
@@ -87,6 +88,7 @@ window.TRAINING_MODULES = [
     "level": "小学平均数／单位 → 初中速度",
     "goal": "先明确总量和总时间，再判断能不能取两个速度的平均。",
     "lab": "rate",
+    "relatedTopic": "distance",
     "qs": [
       {
         "text": "前一段走 120 m 用 2 s，后一段走 120 m 用 1 s。全程平均速率为？",
@@ -168,6 +170,7 @@ window.TRAINING_MODULES = [
     "level": "小学倍数 → 初中代数 → 高中加速度",
     "goal": "区分“变为几倍”与“增加几倍”，把文字转成两个可联立的式子。",
     "lab": "ratio",
+    "relatedTopic": "motion",
     "qs": [
       {
         "text": "物体匀加速直线运动，正初速度为 u，经过时间 t 后速度变为 3u，期间位移为 s。加速度是？",
@@ -249,6 +252,7 @@ window.TRAINING_MODULES = [
     "level": "初中函数／平均量 → 高中中间时刻速度",
     "goal": "在匀变速条件下，把时间段平均速度对应到该段的中间时刻。",
     "lab": "velocity",
+    "relatedTopic": "motion",
     "qs": [
       {
         "text": "匀变速直线运动中，两个连续 1 s 内的位移分别为 p、q。这两段交界时刻的速度为？",
@@ -330,6 +334,7 @@ window.TRAINING_MODULES = [
     "level": "小学小数／时间 → 高中两段运动",
     "goal": "让两段平均速度落到正确时刻，再用速度差除以时刻差。",
     "lab": "segments",
+    "relatedTopic": "motion",
     "qs": [
       {
         "text": "小车匀加速同向运动，连续两段各 120 m，分别用 2 s、1 s。加速度为？",
@@ -411,6 +416,7 @@ window.TRAINING_MODULES = [
     "level": "小学比较 → 初中有理数与不等式",
     "goal": "从数轴理解乘负数后的次序翻转，而不只背变号口诀。",
     "lab": "sign",
+    "relatedTopic": "equation",
     "qs": [
       {
         "text": "−2x>6 的解为？",
@@ -492,6 +498,7 @@ window.TRAINING_MODULES = [
     "level": "初中因式分解 → 高中含参不等式",
     "goal": "先看系数与根，再确定正负区间；参数为零时单独判断。",
     "lab": "quadratic",
+    "relatedTopic": "equation",
     "qs": [
       {
         "text": "−(x−1)(x−3)>0 的解集为？",
@@ -573,6 +580,7 @@ window.TRAINING_MODULES = [
     "level": "初中乘法／平方 → 高中高次不等式",
     "goal": "用因子符号解释穿根，区分奇数重根与偶数重根。",
     "lab": "roots",
+    "relatedTopic": "equation",
     "qs": [
       {
         "text": "(x−1)²(x−3)>0 的解集为？",
