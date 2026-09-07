@@ -191,23 +191,20 @@ function draw() {
 
   if (idx === 5) {
     /* ── 匀变速直线运动 · x–t + v–t 双图（JSXGraph）── */
+    const f = t => p.v * t + .5 * p.acc * t * t;
+    const v = t => p.v + p.acc * t;
+    const samples = [0, 6].map(t => f(t));
+    if (p.acc && -p.v / p.acc > 0 && -p.v / p.acc < 6) samples.push(f(-p.v / p.acc));
+    const bound = Math.max(5, ...samples.map(Math.abs));
+    const vb = Math.max(5, Math.abs(v(0)), Math.abs(v(6)));
+
     $('#visual').innerHTML =
       '<div id="jxg-xt" style="width:100%;height:250px"></div>' +
       '<div id="jxg-vt" style="width:100%;height:250px;margin-top:8px"></div>';
 
-    const board1 = createBoard('jxg-xt', jxgOpts(250, [-0.5, null, 6.5, null]));
-    const board2 = createBoard('jxg-vt', jxgOpts(250, [-0.5, null, 6.5, null]));
+    const board1 = createBoard('jxg-xt', jxgOpts(250, [-0.5, bound + 1, 6.5, -(bound + 1)]));
+    const board2 = createBoard('jxg-vt', jxgOpts(250, [-0.5, vb + 1, 6.5, -(vb + 1)]));
     if (board1 && board2) {
-      const samples = [0, 6].map(t => p.v * t + .5 * p.acc * t * t);
-      if (p.acc && -p.v / p.acc > 0 && -p.v / p.acc < 6) samples.push(p.v * (-p.v / p.acc) + .5 * p.acc * (-p.v / p.acc) ** 2);
-      const bound = Math.max(5, ...samples.map(Math.abs));
-      const vb = Math.max(5, Math.abs(p.v), Math.abs(p.v + p.acc * 6));
-      board1.setBoundingBox([-0.5, bound + 1, 6.5, -(bound + 1)], true);
-      board2.setBoundingBox([-0.5, vb + 1, 6.5, -(vb + 1)], true);
-
-      const f = t => p.v * t + .5 * p.acc * t * t;
-      const v = t => p.v + p.acc * t;
-
       const curveXt = board1.create('functiongraph', [f],
         { strokeColor: JXG_COLORS.blue, strokeWidth: 2 });
       const ptXt = board1.create('point', [() => p.t, () => f(p.t)],

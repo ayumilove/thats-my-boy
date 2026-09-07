@@ -113,6 +113,7 @@ var svgWrap = (content, h = 260, title = '实验图') => `<svg role="img" aria-l
 
 /* ── KaTeX 公式渲染 ────────────────────────────────────── */
 function tex(s) {
+  if (typeof s !== 'string') return String(s ?? '');
   return s.replace(/\$([^$]+)\$/g, '<span class="katex-tex">$1</span>');
 }
 
