@@ -189,22 +189,21 @@ function renderControls() {
 
   /* 二次函数 */
   if (idx === 1)
-    html += '<div class="notes">拖动图上的滑块 a、b、c 改变函数。</div>';
+    html += slider('a', '系数 a', -3, 3, .1) + slider('b', '系数 b', -5, 5, .1) + slider('c', '系数 c', -5, 5, .1);
 
   /* 方程与不等式 */
   if (idx === 2) {
     $('#toolbar').innerHTML = ['x² = k', 'x² < k', 'x² ≤ k'].map((v, i) =>
       `<button data-eq="${i}" class="pill ${p.kind === i ? 'active' : ''}">${v}</button>`
     ).join('');
-    html += '<div class="notes">拖动图上的滑块 k 调整水平线高度。</div>';
+    html += slider('k', '水平线 k', -3, 6, .1);
   }
 
   /* 单调性与奇偶性 */
   if (idx === 3)
     html += `<label class="control"><span>函数</span><select aria-label="函数" id="function" ${stage === 0 ? 'disabled' : ''}>`
       + '<option value="0">x²</option><option value="1">x² + 2</option><option value="2">(x − 1)²</option><option value="3">x³</option>'
-      + '</select></label>'
-      + '<div class="notes">拖动图上的滑块 x 移动取样点。</div>';
+      + '</select></label>' + slider('x', '取样点 x', -3, 3, .1);
 
   /* 路程与位移 */
   if (idx === 4)

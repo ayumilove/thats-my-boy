@@ -1,7 +1,7 @@
 /**
  * 可视化绘图模块
  * 主题 0（集合维恩图）和 4（路程位移时间轴）使用原生 SVG
- * 主题 1-3（函数图像）和 5（运动学双图）使用 JSXGraph
+ * 主题 1-3（函数图像）和 5（运动学双图）使用 JSXGraph 绘图 + HTML 滑块控制
  * 主题 6（受力分析）使用原生 SVG
  */
 
@@ -17,7 +17,7 @@ const JXG_COLORS = {
   muted: '#97a8be'
 };
 
-function jxgOpts(h, bb) {
+function jxgOpts(bb) {
   return {
     boundingbox: bb || [-5.5, 8.5, 5.5, -4.5],
     keepaspectratio: true,
@@ -42,13 +42,16 @@ function jxgOpts(h, bb) {
   };
 }
 
+/* ── JSXGraph 主题状态（原地更新用）──────────────────── */
+var _jxg = { board: null, objs: {} };
+
 /* ── 主绘图调度 ─────────────────────────────────────── */
 function draw() {
-  destroyBoards();
   let s = '', values = [];
 
   if (idx === 0) {
     /* ── 集合与集合运算（维恩图 · 保留 SVG）──────────── */
+    destroyJxg();
     const groups = [0, 1, 2, 3].map(i => setList(v => v === i));
     const result = setList(v =>
       op === 'intersection' ? v === 3 :
@@ -85,92 +88,26 @@ function draw() {
   }
 
   if (idx === 1) {
-    /* ── 二次函数的参数（JSXGraph）──────────────────── */
-    $('#visual').innerHTML = '<div id="jxg-quad" style="width:100%;height:340px"></div>';
-    const board = createBoard('jxg-quad', jxgOpts(340));
-    if (board) {
-      const sa = board.create('slider', [[-4, -3.5], [2, -3.5], [-3, 1, 3]], { name: 'a', color: JXG_COLORS.blue });
-      const sb = board.create('slider', [[-4, -4], [2, -4], [-5, 0, 5]], { name: 'b', color: JXG_COLORS.blue });
-      const sc = board.create('slider', [[-4, -4.5], [2, -4.5], [-5, 0, 5]], { name: 'c', color: JXG_COLORS.blue });
-      sa.Value = () => p.a; sb.Value = () => p.b; sc.Value = () => p.c;
-
-      const f = board.create('functiongraph', [x => sa.Value() * x * x + sb.Value() * x + sc.Value()],
-        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 });
-
-      const old = saved?.p;
-      if (old) {
-        board.create('functiongraph', [x => old.a * x * x + old.b * x + old.c],
-          { strokeColor: JXG_COLORS.muted, dash: 2, strokeWidth: 2 });
-      }
-
-      const vx = board.create('point', [() => p.a ? -p.b / (2 * p.a) : 0, () => p.a ? p.c - p.b * p.b / (4 * p.a) : 0],
-        { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, withLabel: false });
-
-      const update = () => {
-        p.a = sa.Value(); p.b = sb.Value(); p.c = sc.Value();
-        vx.moveTo(p.a ? [-p.b / (2 * p.a), p.c - p.b * p.b / (4 * p.a)] : [0, 0]);
-        showValuesQuad();
-      };
-      sa.on('drag', update); sb.on('drag', update); sc.on('drag', update);
-      showValuesQuad();
-    }
+    /* ── 二次函数的参数（JSXGraph 绘图 + HTML 滑块）─── */
+    drawQuad();
     return;
   }
 
   if (idx === 2) {
-    /* ── 方程与不等式（JSXGraph）────────────────────── */
-    $('#visual').innerHTML = '<div id="jxg-eq" style="width:100%;height:340px"></div>';
-    const board = createBoard('jxg-eq', jxgOpts(340));
-    if (board) {
-      const parabola = board.create('functiongraph', [x => x * x],
-        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 });
-
-      const hline = board.create('line', [[-6, () => p.k], [6, () => p.k]],
-        { strokeColor: JXG_COLORS.teal, strokeWidth: 2 });
-
-      const pts = board.create('point', [
-        () => p.k >= 0 ? -Math.sqrt(p.k) : 0,
-        () => p.k >= 0 ? p.k : 0
-      ], { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, visible: () => p.k >= 0 });
-      const pts2 = board.create('point', [
-        () => p.k >= 0 ? Math.sqrt(p.k) : 0,
-        () => p.k >= 0 ? p.k : 0
-      ], { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, visible: () => p.k >= 0 });
-
-      const sc = board.create('slider', [[-4, -4], [3, -4], [-3, 1, 6]], { name: 'k', color: JXG_COLORS.teal });
-      sc.Value = () => p.k;
-      sc.on('drag', () => { p.k = sc.Value(); showValuesEq(); });
-
-      showValuesEq();
-    }
+    /* ── 方程与不等式（JSXGraph 绘图 + HTML 滑块）───── */
+    drawEq();
     return;
   }
 
   if (idx === 3) {
-    /* ── 单调性与奇偶性（JSXGraph）──────────────────── */
-    $('#visual').innerHTML = '<div id="jxg-prop" style="width:100%;height:340px"></div>';
-    const board = createBoard('jxg-prop', jxgOpts(340));
-    if (board) {
-      const fns = [x => x * x, x => x * x + 2, x => (x - 1) ** 2, x => x * x * x];
-      const f = board.create('functiongraph', [fns[p.kind]],
-        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 });
-
-      const pBlue = board.create('point', [() => p.x, () => fns[p.kind](p.x)],
-        { color: JXG_COLORS.blue, size: 5, name: '', fixed: true });
-      const pTeal = board.create('point', [() => -p.x, () => fns[p.kind](-p.x)],
-        { color: JXG_COLORS.teal, size: 5, name: '', fixed: true });
-
-      const sx = board.create('slider', [[-4, -4], [3, -4], [-3, 2, 3]], { name: 'x', color: JXG_COLORS.blue });
-      sx.Value = () => p.x;
-      sx.on('drag', () => { p.x = sx.Value(); showValuesProp(); });
-
-      showValuesProp();
-    }
+    /* ── 单调性与奇偶性（JSXGraph 绘图 + HTML 滑块）─── */
+    drawProp();
     return;
   }
 
   if (idx === 4) {
     /* ── 路程与位移（保留 SVG）──────────────────────── */
+    destroyJxg();
     const X = x => 320 + x * 26;
     const end = p.right - p.left;
 
@@ -191,50 +128,13 @@ function draw() {
 
   if (idx === 5) {
     /* ── 匀变速直线运动 · x–t + v–t 双图（JSXGraph）── */
-    const f = t => p.v * t + .5 * p.acc * t * t;
-    const v = t => p.v + p.acc * t;
-    const samples = [0, 6].map(t => f(t));
-    if (p.acc && -p.v / p.acc > 0 && -p.v / p.acc < 6) samples.push(f(-p.v / p.acc));
-    const bound = Math.max(5, ...samples.map(Math.abs));
-    const vb = Math.max(5, Math.abs(v(0)), Math.abs(v(6)));
-
-    $('#visual').innerHTML =
-      '<div id="jxg-xt" style="width:100%;height:250px"></div>' +
-      '<div id="jxg-vt" style="width:100%;height:250px;margin-top:8px"></div>';
-
-    const board1 = createBoard('jxg-xt', jxgOpts(250, [-0.5, bound + 1, 6.5, -(bound + 1)]));
-    const board2 = createBoard('jxg-vt', jxgOpts(250, [-0.5, vb + 1, 6.5, -(vb + 1)]));
-    if (board1 && board2) {
-      const curveXt = board1.create('functiongraph', [f],
-        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 });
-      const ptXt = board1.create('point', [() => p.t, () => f(p.t)],
-        { color: JXG_COLORS.blue, size: 5, name: '', fixed: true });
-
-      const curveVt = board2.create('functiongraph', [v],
-        { strokeColor: JXG_COLORS.teal, strokeWidth: 2 });
-      const ptVt = board2.create('point', [() => p.t, () => v(p.t)],
-        { color: JXG_COLORS.teal, size: 5, name: '', fixed: true });
-
-      const st = board1.create('slider', [[0.5, -(bound + 0.3)], [5, -(bound + 0.3)], [0, 0, 6]],
-        { name: 't', color: JXG_COLORS.blue });
-      st.Value = () => p.t;
-
-      const syncTime = () => {
-        p.t = st.Value();
-        ptXt.moveTo([p.t, f(p.t)]);
-        ptVt.moveTo([p.t, v(p.t)]);
-        showValuesMotion();
-      };
-      st.on('drag', syncTime);
-      board2.on('update', () => { ptVt.moveTo([p.t, v(p.t)]); });
-
-      showValuesMotion();
-    }
+    drawMotion();
     return;
   }
 
   if (idx === 6) {
     /* ── 力、质量与加速度（保留 SVG）────────────────── */
+    destroyJxg();
     const net = p.fr - p.fl;
     const a = net / p.m;
 
@@ -300,11 +200,154 @@ function draw() {
   );
 }
 
+/* ── JSXGraph 销毁 ─────────────────────────────────── */
+function destroyJxg() {
+  if (_jxg.board) {
+    try { JXG.JSXGraph.freeBoard(_jxg.board); } catch (_) {}
+    _jxg = { board: null, objs: {} };
+  }
+  destroyBoards();
+}
+
+/* ── 主题 1：二次函数 ──────────────────────────────── */
+function drawQuad() {
+  const divId = 'jxg-quad';
+  if (!_jxg.board || $('#visual').querySelector('#' + divId) === null) {
+    destroyJxg();
+    $('#visual').innerHTML = '<div id="' + divId + '" style="width:100%;height:340px"></div>';
+    _jxg.board = createBoard(divId, jxgOpts());
+    if (!_jxg.board) return;
+
+    const fns = {
+      curve: _jxg.board.create('functiongraph',
+        [x => p.a * x * x + p.b * x + p.c],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 }),
+      vx: _jxg.board.create('point',
+        [() => p.a ? -p.b / (2 * p.a) : 0, () => p.a ? p.c - p.b * p.b / (4 * p.a) : 0],
+        { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, withLabel: false })
+    };
+    _jxg.objs = fns;
+  }
+
+  /* 更新对比曲线 */
+  if (_jxg.objs.overlay) {
+    _jxg.board.removeObject(_jxg.objs.overlay);
+    _jxg.objs.overlay = null;
+  }
+  if (saved && saved.p) {
+    const old = saved.p;
+    _jxg.objs.overlay = _jxg.board.create('functiongraph',
+      [x => old.a * x * x + old.b * x + old.c],
+      { strokeColor: JXG_COLORS.muted, dash: 2, strokeWidth: 2 });
+  }
+
+  _jxg.board.update();
+  showValuesQuad();
+}
+
+/* ── 主题 2：方程与不等式 ───────────────────────────── */
+function drawEq() {
+  const divId = 'jxg-eq';
+  if (!_jxg.board || $('#visual').querySelector('#' + divId) === null) {
+    destroyJxg();
+    $('#visual').innerHTML = '<div id="' + divId + '" style="width:100%;height:340px"></div>';
+    _jxg.board = createBoard(divId, jxgOpts());
+    if (!_jxg.board) return;
+
+    _jxg.objs = {
+      parabola: _jxg.board.create('functiongraph', [x => x * x],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 }),
+      hline: _jxg.board.create('line',
+        [[-6, () => p.k], [6, () => p.k]],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 2 }),
+      pt1: _jxg.board.create('point',
+        [() => p.k >= 0 ? -Math.sqrt(p.k) : 0, () => p.k >= 0 ? p.k : 0],
+        { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, visible: () => p.k >= 0 }),
+      pt2: _jxg.board.create('point',
+        [() => p.k >= 0 ? Math.sqrt(p.k) : 0, () => p.k >= 0 ? p.k : 0],
+        { color: JXG_COLORS.teal, size: 4, name: '', fixed: true, visible: () => p.k >= 0 })
+    };
+  }
+
+  _jxg.board.update();
+  showValuesEq();
+}
+
+/* ── 主题 3：单调性与奇偶性 ────────────────────────── */
+function drawProp() {
+  const divId = 'jxg-prop';
+  const fns = [x => x * x, x => x * x + 2, x => (x - 1) ** 2, x => x * x * x];
+
+  if (!_jxg.board || $('#visual').querySelector('#' + divId) === null || _jxg.objs._kind !== p.kind) {
+    destroyJxg();
+    $('#visual').innerHTML = '<div id="' + divId + '" style="width:100%;height:340px"></div>';
+    _jxg.board = createBoard(divId, jxgOpts());
+    if (!_jxg.board) return;
+
+    _jxg.objs = {
+      _kind: p.kind,
+      curve: _jxg.board.create('functiongraph', [fns[p.kind]],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 }),
+      pBlue: _jxg.board.create('point',
+        [() => p.x, () => fns[p.kind](p.x)],
+        { color: JXG_COLORS.blue, size: 5, name: '', fixed: true }),
+      pTeal: _jxg.board.create('point',
+        [() => -p.x, () => fns[p.kind](-p.x)],
+        { color: JXG_COLORS.teal, size: 5, name: '', fixed: true })
+    };
+  }
+
+  _jxg.board.update();
+  showValuesProp();
+}
+
+/* ── 主题 5：匀变速直线运动 ────────────────────────── */
+function drawMotion() {
+  const f = t => p.v * t + .5 * p.acc * t * t;
+  const v = t => p.v + p.acc * t;
+  const samples = [0, 6].map(t => f(t));
+  if (p.acc && -p.v / p.acc > 0 && -p.v / p.acc < 6) samples.push(f(-p.v / p.acc));
+  const bound = Math.max(5, ...samples.map(Math.abs));
+  const vb = Math.max(5, Math.abs(v(0)), Math.abs(v(6)));
+
+  const divId1 = 'jxg-xt', divId2 = 'jxg-vt';
+  const needRebuild = !_jxg.board || !_jxg.objs.board2 ||
+    $('#visual').querySelector('#' + divId1) === null;
+
+  if (needRebuild) {
+    destroyJxg();
+    $('#visual').innerHTML =
+      '<div id="' + divId1 + '" style="width:100%;height:250px"></div>' +
+      '<div id="' + divId2 + '" style="width:100%;height:250px;margin-top:8px"></div>';
+
+    const board1 = createBoard(divId1, jxgOpts([-0.5, bound + 1, 6.5, -(bound + 1)]));
+    const board2 = createBoard(divId2, jxgOpts([-0.5, vb + 1, 6.5, -(vb + 1)]));
+    if (!board1 || !board2) return;
+
+    _jxg.board = board1;
+    _jxg.objs = {
+      board2: board2,
+      curveXt: board1.create('functiongraph', [f],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 }),
+      ptXt: board1.create('point', [() => p.t, () => f(p.t)],
+        { color: JXG_COLORS.blue, size: 5, name: '', fixed: true }),
+      curveVt: board2.create('functiongraph', [v],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 2 }),
+      ptVt: board2.create('point', [() => p.t, () => v(p.t)],
+        { color: JXG_COLORS.teal, size: 5, name: '', fixed: true })
+    };
+  }
+
+  _jxg.board.update();
+  if (_jxg.objs.board2) _jxg.objs.board2.update();
+  showValuesMotion();
+}
+
 /* ── JSXGraph 主题的值显示辅助函数 ──────────────────── */
 function showValuesQuad() {
   const values = [
     ['当前函数', tex(`$y=${n(p.a)}x^2${p.b < 0 ? '' : '+'}${n(p.b)}x${p.c < 0 ? '' : '+'}${n(p.c)}$`)],
-    ['顶点', p.a ? tex `$(${n(-p.b / (2 * p.a))}),\\,${n(p.c - p.b * p.b / (4 * p.a))})$` : '不适用'],
+    ['顶点', p.a ? tex(`$(${n(-p.b / (2 * p.a))},\\,${n(p.c - p.b * p.b / (4 * p.a))})$`) : '不适用'],
     ['开口方向', p.a > 0 ? '向上' : p.a < 0 ? '向下' : '非二次函数']
   ];
   stats(values);
@@ -315,7 +358,7 @@ function showValuesQuad() {
 function showValuesEq() {
   const root = Math.sqrt(Math.max(0, p.k));
   const sol = p.kind === 0
-    ? (p.k < 0 ? '∅' : p.k === 0 ? '{0}' : tex `$x=\\pm${n(root)}$`)
+    ? (p.k < 0 ? '∅' : p.k === 0 ? '{0}' : tex(`$x=\\pm${n(root)}$`))
     : (p.k < 0 || p.k === 0 && p.kind === 1 ? '∅'
       : p.k === 0 ? '{0}'
       : tex(`${p.kind === 1 ? '(' : '['}-${n(root)},\\,${n(root)}${p.kind === 1 ? ')' : ']'}$`));
