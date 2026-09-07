@@ -1,6 +1,6 @@
 'use strict';
 const modules = window.TRAINING_MODULES;
-const fmt = fmtNum;
+var fmt = fmtNum;
 const labels = ['定位卡点','基础一','基础二','解释规律','迁移练习','独立复核'];
 let current = 0;
 const sessions = modules.map(() => fresh());
