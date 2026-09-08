@@ -4,8 +4,8 @@
  */
 
 /* ── 颜色常量 ──────────────────────────────────────────── */
-const blue = '#c85a3a';
-const teal = '#2a8f7e';
+const blue = '#166534';
+const teal = '#b45309';
 
 /* ── DOM 快捷 ──────────────────────────────────────────── */
 const $ = s => document.querySelector(s);

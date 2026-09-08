@@ -9,12 +9,12 @@ let storeValues = [];
 
 /* ── JSXGraph 暖色调默认配置 ─────────────────────────── */
 const JXG_COLORS = {
-  blue: '#c85a3a',
-  teal: '#2a8f7e',
-  grid: '#e8e0d4',
-  axis: '#9aaebf',
-  text: '#8a7e6b',
-  muted: '#97a8be'
+  blue: '#166534',
+  teal: '#b45309',
+  grid: '#d4d4d8',
+  axis: '#a1a1aa',
+  text: '#71717a',
+  muted: '#9ca3af'
 };
 
 function jxgOpts(bb) {
