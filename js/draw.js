@@ -21,7 +21,7 @@ function jxgOpts(bb) {
   return {
     boundingbox: bb || [-5.5, 8.5, 5.5, -4.5],
     keepaspectratio: true,
-    axis: false,
+    axis: true,
     grid: true,
     showCopyright: false,
     showNavigation: false,
