@@ -36,13 +36,11 @@ function render() {
   const d = topics[idx];
 
   /* 导航 */
-  $('#mathnav').innerHTML = topics.slice(0, 4).map((t, i) => nav(t, i)).join('');
-  $('#physnav').innerHTML = topics.slice(4).map((t, i) => nav(t, i + 4)).join('');
-  document.querySelectorAll('[data-topic]').forEach(b => b.onclick = () => init(+b.dataset.topic));
+  window.CourseMenu?.setCurrent(d.id);
 
   /* 面包屑 & 标题 */
   $('#crumb').textContent = d.name;
-  $('#category').textContent = (idx < 4 ? 'MATHEMATICS / 数学' : 'PHYSICS / 物理') + ' · ' + String(idx + 1).padStart(2, '0');
+  $('#category').textContent = window.Curriculum.subjects.find(s=>s.id===window.Curriculum.topicSubjects[d.id]).name + ' · ' + String(idx + 1).padStart(2, '0');
   $('#title').textContent = d.name;
   $('#subtitle').textContent = d.desc;
 
@@ -65,12 +63,6 @@ function render() {
   draw();
   task();
   showComparison();
-}
-
-/* ── 导航按钮 ──────────────────────────────────────────── */
-function nav(t, i) {
-  return `<button data-topic="${i}" class="${i === idx ? 'active' : ''}">`
-    + `<span class="navicon">${t.icon}</span>${t.name}</button>`;
 }
 
 /* ── 选项按钮组 ────────────────────────────────────────── */
@@ -123,9 +115,8 @@ function task() {
   } else {
     /* 迁移挑战 */
     const trainingLinks = d.relatedTraining
-      ? '<div class="training-hint"><strong>需要补基础？</strong><p>' + d.relatedTraining.map(i => {
-          const names = ['时刻与中点','平均量与单位','倍数与列式','中时速度','等距离不等时间','负数与不等号','二次不等式','穿根法与重根'];
-          return `<a href="training.html#module=${i}" class="training-link">${names[i]}</a>`;
+      ? '<div class="training-hint"><strong>需要补基础？</strong><p>' + d.relatedTraining.map(id => {
+          return `<a href="${window.Curriculum.href(id)}" class="training-link">${window.Curriculum.get(id).title}</a>`;
         }).join(' · ') + '</p></div>'
       : '';
     html = `<span class="badge">迁移挑战</span>`
@@ -151,11 +142,17 @@ function task() {
   if ($('#start'))
     $('#start').onclick = () => { stage = 1; render(); };
   if ($('#observe'))
-    $('#observe').onclick = () => { if (checked) { stage = 2; render(); } else { checked = true; task(); } };
+    $('#observe').onclick = () => { if (checked) { stage = 2; render(); } else { captureMistake('predict',d.q,d.opts,choice,d.answer,d.why);checked = true; task(); } };
   if ($('#excheck'))
-    $('#excheck').onclick = () => { if (exchecked && exchoice === d.ea) transfer = true; else exchecked = true; task(); };
+    $('#excheck').onclick = () => { if (exchecked && exchoice === d.ea) transfer = true; else {captureMistake('explain',d.eq,d.eopts,exchoice,d.ea,d.ewhy);exchecked = true;} task(); };
   if ($('#tcheck'))
-    $('#tcheck').onclick = () => { if (tchecked && tchoice === d.ta) init((idx + 1) % topics.length); else { tchecked = true; task(); } };
+    $('#tcheck').onclick = () => { if (tchecked && tchoice === d.ta) init((idx + 1) % topics.length); else { captureMistake('transfer',d.transfer,d.topts,tchoice,d.ta,d.twhy);tchecked = true; task(); } };
+}
+
+function captureMistake(kind,question,answers,value,correct,why) {
+  if(value===null||value===correct)return;
+  const d=topics[idx];
+  window.LearningBridge?.capture({sourceKey:'experiment:'+d.id+':'+kind,subject:window.Curriculum.topicSubjects[d.id],question,studentAnswer:answers[value],expectedAnswer:answers[correct]+'。'+why,node:d.id,source:'探索实验：'+d.name});
 }
 
 /* ── 滑块控件 ──────────────────────────────────────────── */
@@ -326,7 +323,7 @@ $('#snapshot').onclick = () => {
     p: { ...p },
     values: storeValues.map(a => [...a]),
     label: idx === 0
-      ? 'A=' + fmt(setList(v => v & 1)) + '；B=' + fmt(setList(v => v & 2))
+      ? 'A=' + formatSet(setList(v => v & 1)) + '；B=' + formatSet(setList(v => v & 2))
       : Array.from(document.querySelectorAll('[data-key]'))
           .map(e => e.getAttribute('aria-label') + ' = ' + n(+e.value)).join(' · ')
   };
@@ -338,5 +335,10 @@ $('#clearcompare').onclick = () => { saved = null; draw(); showComparison(); };
 $('#reset').onclick = () => init(idx);
 
 /* ── 启动 ──────────────────────────────────────────────── */
-const hashTopic = location.hash.match(/topic=(\d)/);
-init(hashTopic ? +hashTopic[1] : 0);
+function routeTopic() {
+  const value=new URLSearchParams(location.hash.slice(1)).get('topic');
+  const found=topics.findIndex(t=>t.id===value);
+  init(found>=0?found:/^\d+$/.test(value||'')&&Number(value)<topics.length?Number(value):0);
+}
+window.addEventListener('hashchange',routeTopic);
+routeTopic();

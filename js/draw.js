@@ -81,9 +81,9 @@ function draw() {
     );
 
     values = [
-      ['当前运算结果', fmt(result)],
-      ['集合 A', fmt(setList(v => v & 1))],
-      ['集合 B', fmt(setList(v => v & 2))]
+      ['当前运算结果', formatSet(result)],
+      ['集合 A', formatSet(setList(v => v & 1))],
+      ['集合 B', formatSet(setList(v => v & 2))]
     ];
   }
 

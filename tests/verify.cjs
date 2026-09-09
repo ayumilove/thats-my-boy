@@ -13,10 +13,10 @@ const document = {
   querySelectorAll() { return []; }
 };
 const ctx = vm.createContext({ document, window:{}, console });
-for (const name of ['js/utils.js','training-data.js','training.js']) vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
+for (const name of ['js/utils.js','js/curriculum.js','js/science-labs.js','training-data.js','science-data.js','training.js']) vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),ctx);
 const run = expression => vm.runInContext(expression,ctx);
-assert.equal(run('modules.length'),8);
-assert.equal(run('modules.reduce((n,m)=>n+m.qs.length,0)'),48);
+assert.equal(run('modules.length'),10);
+assert.equal(run('modules.reduce((n,m)=>n+m.qs.length,0)'),60);
 assert(run('modules.every(m=>m.qs.length===6&&m.qs.every(q=>Number.isInteger(q.answer)&&q.answer>=0&&q.answer<q.options.length&&q.hint&&q.why&&q.skill))'));
 // Independent diagnosis skips prerequisites; uncertain correct answers do not.
 run("current=0;sessions[0]=fresh();state().selected=question().answer;state().confidence='sure';checkAnswer();advance()");
@@ -29,7 +29,7 @@ assert.equal(run('state().step'),1);
 run("sessions[0]=fresh();state().selected=question().answer;state().confidence='sure';state().assisted=true;checkAnswer();advance()");
 assert.equal(run('state().step'),1);
 // All module flows and visual calculations execute; final failures remain 'needs practice'.
-for(let i=0;i<8;i++) {
+for(let i=0;i<10;i++) {
   run(`current=${i};sessions[current]=fresh();`);
   for(let j=0;j<6;j++) {
     run(`goStep(${j});state().selected=question().answer;state().confidence='sure';checkAnswer();`);
@@ -63,11 +63,11 @@ for (const x of [-4,-2,0,1,2,3,4,6]) {
   assert.equal((x+2)**2*(x-4)<=0,x<=4);
 }
 // Every shipped HTML resource is relative, available locally, and suitable for Pages project paths.
-for(const file of ['index.html','training.html']) {
+for(const file of ['index.html','training.html','learning.html']) {
   const html=fs.readFileSync(path.join(root,file),'utf8');
   for(const [,ref] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
     assert(!ref.startsWith('/'),`Root-relative resource: ${ref}`);
-    if(!/^(https?:|#)/.test(ref))assert(fs.existsSync(path.join(root,ref)),`Missing resource: ${ref}`);
+    if(!/^(https?:|#)/.test(ref))assert(fs.existsSync(path.join(root,ref.split(/[?#]/)[0])),`Missing resource: ${ref}`);
   }
 }
-console.log('PASS: 48 question records, adaptive branching, all eight render paths, assistance accounting, motion identities, inequality boundaries, local resources.');
+console.log('PASS: 60 question records, adaptive branching, all ten render paths, assistance accounting, motion identities, inequality boundaries, local resources.');

@@ -1,0 +1,193 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方向二 · 光锥 Lumen — Modern Learning Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f172a;--ink-2:#334155;--muted:#94a3b8;--accent:#6366f1;--accent-soft:#eef2ff;--accent-2:#f59e0b;--accent-2-soft:#fef3c7;--teal:#10b981;--teal-soft:#ecfdf5;--line:#e2e8f0;--bg:#f8fafc;--card:#ffffff;--side-bg:#ffffff;--side-border:#e2e8f0;--radius:12px;--sans:'Inter','Noto Sans SC',-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans);display:flex;min-height:100vh}
+/* ── Sidebar ── */
+aside{width:248px;background:var(--side-bg);border-right:1px solid var(--side-border);padding:28px 16px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);margin-bottom:8px}
+.brand-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent) 0%,#8b5cf6 100%);border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden}
+.brand-mark::after{content:'';position:absolute;width:14px;height:14px;background:rgba(255,255,255,.25);border-radius:50%;top:4px;right:4px}
+.brand-mark svg{width:20px;height:20px}
+.brand-text{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.brand-text small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.5px;margin-top:1px}
+.nav-section{margin-top:28px}
+.navlabel{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:0 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.navlabel .count{font-size:10px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:10px;font-weight:600}
+nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:0;text-align:left;padding:10px 12px;margin:2px 0;border-radius:8px;font:14px/1.4 var(--sans);color:var(--ink-2);cursor:pointer;transition:all .12s}
+nav button:hover{background:#f1f5f9}
+nav button.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.navicon{font-size:15px;width:22px;text-align:center;opacity:.6}
+nav button.active .navicon{opacity:1}
+.training-link{display:flex;align-items:center;gap:10px;margin:12px 0 0;padding:12px 14px;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-radius:10px;text-decoration:none;color:#92400e;font-size:13px;font-weight:600;transition:all .15s}
+.training-link:hover{filter:brightness(.97)}
+.training-link .icon{font-size:18px}
+.training-link small{display:block;font-weight:400;color:#a16207;margin-top:2px;font-size:11px}
+.aside-bottom{margin-top:auto;padding-top:16px}
+.aside-bottom .card{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-radius:10px;padding:16px;text-align:center}
+.aside-bottom .card .emoji{font-size:24px;margin-bottom:6px}
+.aside-bottom .card strong{font-size:13px;display:block;margin-bottom:4px;color:var(--ink)}
+.aside-bottom .card p{font-size:12px;color:var(--muted);line-height:1.6}
+.aside-bottom .hint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
+/* ── Main ── */
+main{flex:1;padding:0 40px;max-width:1440px}
+header{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:14px}
+header .crumb{color:var(--muted)}
+header .crumb b{color:var(--ink);font-weight:600}
+header .meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:16px}
+header .meta .tag{background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+/* ── Heading ── */
+.heading{display:flex;justify-content:space-between;align-items:flex-end;padding:32px 0 24px}
+.heading .eyebrow{font-size:12px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:8px}
+.heading .eyebrow .num{background:var(--accent);color:#fff;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:700}
+.heading h1{font-size:28px;font-weight:700;letter-spacing:-.5px;margin:8px 0 6px;line-height:1.2;color:var(--ink)}
+.heading .desc{font-size:14px;color:var(--muted);max-width:480px;line-height:1.6}
+.btn-quiet{border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px}
+.btn-quiet:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+/* ── Steps ── */
+.steps{display:flex;gap:8px;margin-bottom:24px}
+.step{flex:1;padding:16px;display:flex;align-items:center;gap:10px;font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--muted);position:relative;overflow:hidden}
+.step.current{border-color:var(--accent);background:var(--accent-soft)}
+.step.current .step-num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.step.current .step-name{color:var(--accent);font-weight:600}
+.step.done{background:var(--teal-soft);border-color:#a7f3d0}
+.step.done .step-num{background:var(--teal);color:#fff;border-color:var(--teal)}
+.step.done .step-name{color:var(--teal)}
+.step-num{width:28px;height:28px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.step-name{font-weight:500;color:var(--ink-2)}
+.step-hint{font-size:11px;margin-left:auto;color:var(--muted);white-space:nowrap}
+.step-connector{position:absolute;right:-16px;top:50%;width:24px;height:2px;background:var(--line);z-index:1}
+.step:last-child .step-connector{display:none}
+/* ── Workspace ── */
+.workspace{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+/* ── Experiment Panel ── */
+.experiment{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.panel-head .title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.panel-head .title .pulse{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.panel-head .hint{font-size:12px;color:var(--muted);background:#f1f5f9;padding:4px 10px;border-radius:6px}
+.toolbar{display:flex;gap:6px;padding:14px 20px 0;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink-2);padding:7px 14px;font-size:13px;border-radius:8px;cursor:pointer;transition:all .12s;font-weight:500}
+.pill:hover{border-color:#cbd5e1;background:#f8fafc}
+.pill.active{color:var(--accent);background:var(--accent-soft);border-color:#c7d2fe;font-weight:600}
+.visual-area{padding:12px 20px;min-height:200px}
+.visual-placeholder{background:#f8fafc;border:2px dashed var(--line);border-radius:10px;height:280px;display:grid;place-items:center;color:var(--muted);font-size:14px}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 20px;border-top:1px solid var(--line)}
+.stat{background:#f8fafc;border-radius:8px;padding:14px 16px;font-size:12px;color:var(--muted);font-weight:500}
+.stat strong{display:block;font-size:18px;font-weight:700;color:var(--ink);margin-top:4px;font-variant-numeric:tabular-nums}
+.stat:first-child strong{color:var(--accent)}
+.controls{padding:16px 20px;background:#f8fafc;border-top:1px solid var(--line)}
+.control{display:grid;grid-template-columns:100px 1fr 56px;gap:12px;align-items:center;margin:8px 0;font-size:13px;color:var(--ink-2);font-weight:500}
+.control output{background:var(--card);border:1px solid var(--line);text-align:center;border-radius:6px;padding:4px 0;font-size:13px;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent);height:6px;cursor:ew-resize}
+/* ── Thinking Panel ── */
+.thinking-panel .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;position:relative}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px}
+.thinking-panel h2{font-size:19px;font-weight:700;margin:14px 0 10px;line-height:1.4;letter-spacing:-.3px}
+.thinking-panel .question{font-size:15px;line-height:1.8;color:var(--ink-2);margin:14px 0;padding:14px;background:#f8fafc;border-radius:8px;border-left:3px solid var(--accent)}
+.option{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--card);margin:8px 0;font-size:14px;color:var(--ink-2);cursor:pointer;transition:all .12s;text-align:left;font-weight:500}
+.option:hover{border-color:#cbd5e1;background:#f8fafc}
+.option.selected{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.option .letter{width:26px;height:26px;border-radius:8px;background:#f1f5f9;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.option.selected .letter{background:var(--accent);color:#fff}
+.btn-primary{border:0;background:linear-gradient(135deg,var(--accent) 0%,#8b5cf6 100%);color:#fff;border-radius:10px;padding:14px;width:100%;margin-top:16px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.3px;transition:all .15s;box-shadow:0 2px 8px rgba(99,102,241,.25)}
+.btn-primary:hover{filter:brightness(1.05);box-shadow:0 4px 12px rgba(99,102,241,.35)}
+.concept{padding:20px 0 0}
+.concept .label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.concept h3{font-size:15px;font-weight:600;margin:8px 0;color:var(--ink)}
+.concept p{font-size:14px;color:var(--muted);line-height:1.8}
+footer{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;padding:24px 0;border-top:1px solid var(--line);margin-top:32px}
+</style></head>
+<body>
+<aside>
+  <a class="brand" href="#">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L2 22h20L12 2z" fill="white" opacity=".9"/><circle cx="12" cy="15" r="3" fill="rgba(99,102,241,.5)"/></svg></div>
+    <div class="brand-text">光锥实验室<small>Lumen Lab</small></div>
+  </a>
+  <a class="training-link" href="#"><span class="icon">🎯</span><div>专项补强训练 →<small>先定位卡点，再补基础</small></div></a>
+  <div class="nav-section">
+    <div class="navlabel">数学 <span class="count">4</span></div>
+    <nav>
+      <button class="active"><span class="navicon">∩</span>集合与集合运算</button>
+      <button><span class="navicon">∿</span>二次函数的参数</button>
+      <button><span class="navicon">≶</span>方程与不等式</button>
+      <button><span class="navicon">↗</span>单调性与奇偶性</button>
+    </nav>
+  </div>
+  <div class="nav-section">
+    <div class="navlabel">物理 <span class="count">3</span></div>
+    <nav>
+      <button><span class="navicon">⇄</span>路程与位移</button>
+      <button><span class="navicon">⌁</span>匀变速直线运动</button>
+      <button><span class="navicon">→</span>力、质量与加速度</button>
+    </nav>
+  </div>
+  <div class="aside-bottom">
+    <div class="card"><div class="emoji">💡</div><strong>每一次尝试，都值得鼓励</strong><p>先提出猜想，再寻找证据。</p></div>
+    <div class="hint">本次探索不保存学习记录</div>
+  </div>
+</aside>
+<main>
+  <header>
+    <span class="crumb">探索工作台 / <b>集合与集合运算</b></span>
+    <div class="meta"><span class="tag">高一 · 数形结合</span><span>人教版</span></div>
+  </header>
+  <section class="heading">
+    <div>
+      <div class="eyebrow"><span class="num">01</span> Mathematics · 数学</div>
+      <h1>集合与集合运算</h1>
+      <p class="desc">移动一个元素，观察集合之间的关系如何改变。</p>
+    </div>
+    <button class="btn-quiet">↺ 重新开始</button>
+  </section>
+  <div class="steps">
+    <div class="step current"><div class="step-num">1</div><span class="step-name">预测</span><span class="step-hint">提出你的猜想</span><div class="step-connector"></div></div>
+    <div class="step"><div class="step-num">2</div><span class="step-name">实验</span><span class="step-hint">用变化验证</span><div class="step-connector"></div></div>
+    <div class="step"><div class="step-num">3</div><span class="step-name">解释</span><span class="step-hint">说清原因</span></div>
+  </div>
+  <div class="workspace">
+    <section class="experiment">
+      <div class="panel-head">
+        <div class="title"><span class="pulse"></span>交互实验</div>
+        <span class="hint">先作出你的预测</span>
+      </div>
+      <div class="toolbar">
+        <button class="pill active">A ∩ B · 交集</button>
+        <button class="pill">A ∪ B · 并集</button>
+        <button class="pill">∁ᵤ A · 补集</button>
+      </div>
+      <div class="visual-area"><div class="visual-placeholder">「维恩图交互区域 · 拖放集合元素」</div></div>
+      <div class="readout">
+        <div class="stat">当前运算结果<strong>{3, 4}</strong></div>
+        <div class="stat">集合 A<strong>{1, 2, 3, 4}</strong></div>
+        <div class="stat">集合 B<strong>{3, 4, 5, 6}</strong></div>
+      </div>
+      <div class="controls">
+        <div class="control"><span>系数 a</span><input type="range" min="-3" max="3" step="0.1" value="1"><output>1</output></div>
+        <div class="control"><span>系数 b</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div>
+        <div class="control"><span>系数 c</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div>
+      </div>
+    </section>
+    <section class="thinking-panel">
+      <div class="card">
+        <span class="badge">✦ 01 · 先预测</span>
+        <h2>你的直觉是什么？</h2>
+        <p class="question">初始时 A={1,2,3,4}，B={3,4,5,6}。把元素 2 从"仅 A"移到"A 与 B"，交集会怎样变化？</p>
+        <button class="option selected"><span class="letter">A</span>增加元素 2</button>
+        <button class="option"><span class="letter">B</span>减少元素 2</button>
+        <button class="option"><span class="letter">C</span>保持不变</button>
+        <button class="btn-primary">带着预测，开始实验 →</button>
+      </div>
+      <div class="concept">
+        <div class="label">思考工具</div>
+        <h3>从"属于谁"开始</h3>
+        <p>把复杂条件拆成"属于 A"和"属于 B"两个判断。交集要求同时满足，并集要求至少满足一个。</p>
+      </div>
+    </section>
+  </div>
+  <footer><span>光锥实验室 · Lumen Lab</span><span>观察现象 → 理解关系 → 推理验证</span></footer>
+</main>
+</body></html>

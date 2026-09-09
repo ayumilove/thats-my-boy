@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>我的错题 · 数理原典</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="learning.css" />
+  <link rel="stylesheet" href="course-menu.css"></head>
+  <body class="learning-page">
+    <aside class="app-sidebar"><a class="brand" href="index.html"><span class="brandmark">数</span><span>数理原典<b>高中 · 四科学习</b></span></a><div id="course-menu"></div><a class="sidebar-notebook" href="learning.html#notebook">我的错题</a><details class="sidebar-tools"><summary>学习工具</summary><div class="sidebar-tools-content"><a href="learning.html#settings">API 设置</a><a href="learning.html#gaps">待补知识</a><button class="quiet" id="export">导出学习备份</button><label class="import-label">恢复备份<input id="import" type="file" accept="application/json,.json"></label><p class="notes">备份不含密钥，恢复只合并缺少的错题。</p></div></details></aside>
+    <main>
+      <header>
+        <span>我的学习 / 从错误找到下一步</span><a href="#new">＋ 录入错题</a>
+      </header>
+      <p id="notice" role="status" aria-live="polite"></p>
+      <section id="notebook-view">
+        <section class="heading">
+          <div>
+            <div class="eyebrow">每次解决一个问题</div>
+            <h1>从这道错题开始。</h1>
+            <p>保存题目和你的想法，找到该补的知识，再试一次。</p>
+          </div>
+        </section>
+        <ol class="workflow">
+          <li>1 · 录入错题</li>
+          <li>2 · 关联知识</li>
+          <li>3 · 开始补强</li>
+        </ol>
+        <form id="mistake-form">
+          <h2>录入一道错题</h2>
+          <div class="field-row">
+            <label>学科<select id="subject"></select></label
+            ><label
+              >题目来源（选填）<input
+                id="source"
+                maxlength="120"
+                placeholder="例如：周测第 5 题"
+            /></label>
+          </div>
+          <label
+            >题目<textarea
+              id="question"
+              required
+              maxlength="8000"
+              rows="4"
+              placeholder="粘贴完整题干、条件和选项；暂不支持图片识别。"
+            ></textarea></label
+          ><label
+            >你的答案或解题过程<textarea
+              id="student-answer"
+              maxlength="8000"
+              rows="3"
+              placeholder="尽量保留做错的步骤；没作答也可以留空。"
+            ></textarea>
+          </label>
+          <details>
+            <summary>补充参考答案（选填）</summary>
+            <label
+              >参考答案与解释<textarea
+                id="expected-answer"
+                maxlength="8000"
+                rows="3"
+              ></textarea>
+            </label>
+          </details>
+          <button class="primary" type="submit">保存，查看关联 →</button>
+          <p class="notes">
+            保存不会发送到外部服务。AI 分析需在下一步主动点击。
+          </p>
+        </form>
+        <section class="records">
+          <div class="section-heading">
+            <h2>已保存的错题</h2>
+            <label
+              >筛选学科<select id="filter">
+                <option value="">全部学科</option>
+              </select></label
+            >
+          </div>
+          <div id="records"></div>
+        </section>
+      </section>
+      <section id="detail-view" hidden>
+        <a href="#notebook">← 我的错题</a>
+        <div id="detail"></div>
+      </section>
+      <section id="settings-view" hidden>
+        <h1>API 设置</h1>
+        <p>
+          填写支持 OpenAI Chat Completions 格式的服务，模型名称由服务商提供。
+        </p>
+        <form id="settings-form">
+          <label
+            >API 地址<input
+              id="api-url"
+              type="url"
+              required
+              placeholder="https://服务域名/v1"
+              autocomplete="off"
+          /></label>
+          <p class="notes">
+            支持基础地址或完整 /chat/completions
+            地址。服务须允许本网站跨域访问（CORS）。
+          </p>
+          <label
+            >模型名称<input
+              id="api-model"
+              required
+              maxlength="150"
+              placeholder="填写服务商支持的模型 ID"
+              autocomplete="off" /></label
+          ><label
+            >API Key<input
+              id="api-key"
+              type="password"
+              required
+              autocomplete="off"
+              spellcheck="false" /></label
+          ><label class="check"
+            ><input
+              id="remember-key"
+              type="checkbox"
+            />在这台私人设备记住密钥</label
+          >
+          <p class="notes">
+            默认仅当前标签页保存密钥。勾选后明文保存在浏览器中，同源脚本可读取；不要在共享设备勾选。分析会把当前题目、解法和参考答案发给你填写的服务，请先去除姓名等个人信息。
+          </p>
+          <div class="actions">
+            <button class="primary" type="submit">保存设置</button
+            ><button class="quiet" type="button" id="test-api">测试连接</button
+            ><button class="quiet" type="button" id="clear-key">
+              忘记密钥
+            </button>
+          </div>
+          <p id="api-status" role="status"></p>
+        </form>
+        <p class="notes">
+          测试仅发送“请回复 OK”，可能产生少量 API 费用。没有 API
+          也能保存错题和手动关联。
+        </p>
+      </section>
+      <section id="gaps-view" hidden>
+        <h1>待补知识</h1>
+        <p>
+          这些内容暂未匹配到系统课程。保留原题依据，供后续补充教材讲解和验证练习；AI
+          建议需人工核对。
+        </p>
+        <button class="quiet" id="export-gaps">导出课程补充清单</button>
+        <div id="gaps"></div>
+      </section>
+      <footer>
+        数理原典 <span>一次答对是进展，独立复核才有更多依据。</span>
+      </footer>
+    </main>
+    <script src="js/curriculum.js"></script><script src="js/course-menu.js"></script>
+    <script src="js/learning-store.js"></script>
+    <script src="js/llm.js"></script>
+    <script src="js/learning.js"></script>
+  </body>
+</html>

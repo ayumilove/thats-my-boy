@@ -12,6 +12,7 @@ const $ = s => document.querySelector(s);
 
 /* ── 数值格式化 ────────────────────────────────────────── */
 const n = v => Number(v.toFixed(2)).toString();
+const formatSet = values => values.length ? '{' + values.join(', ') + '}' : '∅';
 
 /* ── SVG 基础元素 ──────────────────────────────────────── */
 const line = (x1, y1, x2, y2, color = '#dfe7f0', width = 1, dash = '') =>

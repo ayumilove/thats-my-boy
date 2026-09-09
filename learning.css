@@ -1,0 +1,211 @@
+.learning-page {
+  font-family: system-ui, "Microsoft YaHei", sans-serif;
+}
+.learning-page aside nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 30px 0;
+}
+.learning-page aside nav a {
+  padding: 8px 0;
+}
+.learning-page a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+.learning-page main {
+  max-width: 1200px;
+}
+.learning-page h1 {
+  font-size: 2rem;
+  line-height: 1.4;
+}
+.learning-page h2 {
+  font-size: 1.3rem;
+  margin-top: 24px;
+}
+.learning-page p {
+  max-width: 75ch;
+}
+.learning-page form {
+  max-width: 760px;
+}
+.learning-page label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: 600;
+}
+.learning-page input:not([type="checkbox"]),
+.learning-page select,
+.learning-page textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font: inherit;
+}
+.learning-page textarea {
+  resize: vertical;
+}
+.learning-page input:focus-visible,
+.learning-page textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+.workflow {
+  display: flex;
+  list-style: none;
+  padding: 14px 0;
+  gap: 28px;
+  border-block: 1px solid var(--line);
+  color: var(--accent);
+}
+.learning-page details {
+  margin: 16px 0;
+}
+.learning-page summary {
+  cursor: pointer;
+}
+.learning-page .primary {
+  margin-top: 16px;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.learning-page .actions .primary {
+  margin: 0;
+}
+.learning-page .actions button {
+  width: auto;
+  min-width: 140px;
+}
+.section-heading {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-heading select {
+  min-width: 120px;
+}
+.records {
+  margin-top: 48px;
+  border-top: 1px solid var(--line);
+}
+.record,
+.knowledge-link,
+.gap {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.record h3,
+.knowledge-link h3 {
+  margin: 0 0 8px;
+}
+.record p {
+  margin: 5px 0;
+}
+.record-link {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.source-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.analysis-summary {
+  padding: 16px;
+  background: oklch(96% 0.014 150);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.badge-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.learning-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.learning-page .check {
+  font-weight: 400;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+#notice:not(:empty),
+#api-status:not(:empty) {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: oklch(96% 0.014 150);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.import-label {
+  font-size: 0.85rem;
+}
+.learning-page aside input[type="file"] {
+  max-width: 100%;
+  font-size: 0.8rem;
+}
+.learning-page [hidden] {
+  display: none !important;
+}
+@media (max-width: 800px) {
+  .learning-page aside {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 18px 22px;
+  }
+  .learning-page aside nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    gap: 16px;
+  }
+  .learning-page aside .notes {
+    display: none;
+  }
+  .learning-page main {
+    margin-left: 0;
+    padding: 20px;
+  }
+  .workflow {
+    gap: 12px;
+    font-size: 0.85rem;
+  }
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .section-heading {
+    align-items: flex-start;
+  }
+  .learning-page h1 {
+    font-size: 1.7rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

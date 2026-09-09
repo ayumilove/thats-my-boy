@@ -1,0 +1,116 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>配色方案 B · 灰蓝 + 珊瑚橘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1e293b;--muted:#64748b;--accent:#ea580c;--accent-light:#fff7ed;--line:#cbd5e1;--bg:#f1f5f9;--card:#ffffff;--teal:#0891b2;--side-bg:#e8edf4;--serif:'Noto Serif SC','Source Serif 4',Georgia,serif;--sans:'Noto Serif SC',-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--ink);font:15px/1.75 var(--sans);display:flex;min-height:100vh}
+aside{width:260px;background:var(--side-bg);border-right:1px solid var(--line);padding:36px 24px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink)}
+.brand-mark{width:42px;height:42px;border:2px solid var(--accent);border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:18px;font-weight:700;color:var(--accent);flex-shrink:0}
+.brand-text{font-family:var(--serif);font-size:18px;font-weight:700;letter-spacing:1px;line-height:1.3}
+.brand-text small{display:block;font-size:11px;font-weight:400;letter-spacing:3px;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.edition{font-size:11px;color:var(--muted);letter-spacing:2px;margin:28px 0 32px;text-transform:uppercase}
+.navlabel{font-size:11px;color:#94a3b8;letter-spacing:2.5px;text-transform:uppercase;margin:24px 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+.navlabel span{font-size:10px;color:#b0bec9}
+nav button{display:flex;align-items:center;gap:12px;width:100%;border:0;background:0;text-align:left;padding:10px 14px;margin:2px 0;border-radius:6px;font:14px/1.4 var(--sans);color:#475569;cursor:pointer;transition:all .15s}
+nav button:hover{background:#dde3eb}
+nav button.active{background:var(--card);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.navicon{font-size:16px;width:22px;text-align:center;opacity:.7}
+.aside-bottom{margin-top:auto;padding-top:24px;border-top:1px solid var(--line)}
+.aside-bottom .motto{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.aside-bottom p{font-size:12px;color:var(--muted);line-height:1.7}
+.aside-bottom .hint{font-size:11px;color:#94a3b8;margin-top:12px}
+.training-link{display:block;margin:16px 0 0;padding:12px 14px;background:var(--accent-light);border:1px solid #fed7aa;border-radius:6px;text-decoration:none;color:var(--accent);font-size:13px;font-weight:600}
+.training-link small{display:block;font-weight:400;color:var(--muted);margin-top:3px;font-size:11px}
+main{flex:1;padding:0 44px;max-width:1400px}
+header{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+header .slash{margin:0 16px;color:#b0bec9}
+.header-right{font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+.heading{display:flex;justify-content:space-between;align-items:flex-end;padding:36px 0 28px}
+.heading .eyebrow{font-size:11px;color:var(--accent);letter-spacing:3px;font-weight:600;text-transform:uppercase}
+.heading h1{font-family:var(--serif);font-size:32px;font-weight:700;letter-spacing:1px;margin:8px 0 6px;line-height:1.2}
+.heading .desc{font-size:14px;color:var(--muted);max-width:500px}
+.btn-quiet{border:1px solid var(--line);background:var(--card);color:#475569;border-radius:5px;padding:8px 14px;font-size:13px;cursor:pointer}
+.btn-quiet:hover{border-color:var(--accent);color:var(--accent)}
+.steps{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.step{flex:1;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:14px;color:#94a3b8;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:0}
+.step.current{background:var(--card);color:var(--accent);font-weight:600}
+.step.current::after{content:'';position:absolute;bottom:0;left:18px;right:18px;height:2px;background:var(--accent);border-radius:1px}
+.step.done{color:var(--teal)}
+.step-num{width:26px;height:26px;border:1.5px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;flex-shrink:0}
+.step.done .step-num{background:var(--teal);color:#fff;border-color:var(--teal)}
+.step-label{font-size:13px}.step-hint{font-size:11px;margin-left:auto;opacity:.7;white-space:nowrap}
+.workspace{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+.experiment{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line)}
+.panel-head .title{font-family:var(--serif);font-size:16px;font-weight:600;display:flex;align-items:center;gap:10px}
+.panel-head .title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.panel-head .hint{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;padding:16px 24px 0;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--card);color:#475569;padding:7px 14px;font-size:13px;border-radius:20px;cursor:pointer}
+.pill.active{color:var(--accent);background:var(--accent-light);border-color:#fed7aa}
+.visual-area{padding:16px 24px;min-height:200px}
+.visual-placeholder{background:linear-gradient(135deg,#f1f5f9,#e8edf4);border:1px dashed var(--line);border-radius:8px;height:280px;display:grid;place-items:center;color:var(--muted);font-size:14px;font-style:italic}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+.stat{padding:16px 20px;border-right:1px solid var(--line);font-size:12px;color:var(--muted);letter-spacing:.5px}
+.stat:last-child{border-right:0}
+.stat strong{display:block;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink);margin-top:4px}
+.stat:first-child strong{color:var(--accent)}
+.controls{padding:20px 24px;background:#f1f5f9;border-top:1px solid var(--line)}
+.control{display:grid;grid-template-columns:100px 1fr 60px;gap:14px;align-items:center;margin:10px 0;font-size:14px;color:#475569}
+.control output{background:var(--card);border:1px solid var(--line);text-align:center;border-radius:4px;padding:4px 0;font-size:13px;color:var(--accent);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:ew-resize}
+.thinking-panel .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:28px}
+.badge{display:inline-block;background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;letter-spacing:1px}
+.thinking-panel h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:14px 0 12px;line-height:1.4}
+.thinking-panel .question{font-size:15px;line-height:1.9;color:var(--ink);margin:16px 0}
+.option{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;width:100%;border:1px solid var(--line);border-radius:8px;background:var(--card);margin:8px 0;font-size:14px;color:#475569;cursor:pointer;text-align:left}
+.option:hover{border-color:#b0bec9}
+.option.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.option .letter{width:24px;height:24px;border-radius:50%;background:#dde3eb;display:grid;place-items:center;font-size:12px;font-weight:600;flex-shrink:0}
+.option.selected .letter{background:var(--accent);color:#fff}
+.btn-primary{border:0;background:var(--accent);color:#fff;border-radius:8px;padding:14px;width:100%;margin-top:20px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.5px}
+.btn-primary:hover{background:#c2410c}
+.concept{padding:24px 0 0}.concept .eyebrow{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.concept h3{font-family:var(--serif);font-size:16px;font-weight:600;margin:8px 0}
+.concept p{font-size:14px;color:var(--muted);line-height:1.9}
+footer{font-size:12px;color:#94a3b8;display:flex;justify-content:space-between;padding:28px 0;border-top:1px solid var(--line);margin-top:36px;letter-spacing:.5px}
+.swatch{position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;box-shadow:0 4px 12px rgba(0,0,0,.08);z-index:99}
+.swatch-title{font-size:13px;font-weight:600;margin-bottom:10px}
+.swatch-colors{display:flex;gap:6px}
+.swatch-dot{width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.swatch-label{font-size:10px;color:var(--muted);text-align:center;margin-top:4px}
+</style></head>
+<body>
+<aside>
+  <a class="brand" href="#"><div class="brand-mark">数</div><div class="brand-text">数理原典<small>Mathesis</small></div></a>
+  <div class="edition">人教版 · 高一专题</div>
+  <a class="training-link" href="#">专项补强训练 →<small>先定位卡点，再补基础</small></a>
+  <div class="navlabel">数学实验室 <span>04</span></div>
+  <nav><button class="active"><span class="navicon">∩</span>集合与集合运算</button><button><span class="navicon">∿</span>二次函数的参数</button><button><span class="navicon">≶</span>方程与不等式</button><button><span class="navicon">↗</span>单调性与奇偶性</button></nav>
+  <div class="navlabel">物理实验室 <span>03</span></div>
+  <nav><button><span class="navicon">⇄</span>路程与位移</button><button><span class="navicon">⌁</span>匀变速直线运动</button><button><span class="navicon">→</span>力、质量与加速度</button></nav>
+  <div class="aside-bottom"><div class="motto">每一次尝试，都值得鼓励。</div><p>先提出猜想，再寻找证据。</p><div class="hint">本次探索不保存学习记录</div></div>
+</aside>
+<main>
+  <header><span>探索工作台<span class="slash">/</span>集合与集合运算</span><span class="header-right">高中 · 数形结合</span></header>
+  <section class="heading"><div><div class="eyebrow">Mathematics · 01</div><h1>集合与集合运算</h1><p class="desc">移动一个元素，观察集合之间的关系如何改变。</p></div><button class="btn-quiet">↺ 重新开始</button></section>
+  <div class="steps"><div class="step current"><div class="step-num">1</div><span class="step-label">预测</span><span class="step-hint">提出你的猜想</span></div><div class="step"><div class="step-num">2</div><span class="step-label">实验</span><span class="step-hint">用变化验证</span></div><div class="step"><div class="step-num">3</div><span class="step-label">解释</span><span class="step-hint">说清背后的原因</span></div></div>
+  <div class="workspace">
+    <section class="experiment">
+      <div class="panel-head"><div class="title"><span class="dot"></span>交互实验</div><span class="hint">先作出你的预测</span></div>
+      <div class="toolbar"><button class="pill active">A ∩ B · 交集</button><button class="pill">A ∪ B · 并集</button><button class="pill">∁ᵤ A · 补集</button></div>
+      <div class="visual-area"><div class="visual-placeholder">「维恩图交互区域 · 拖放集合元素」</div></div>
+      <div class="readout"><div class="stat">当前运算结果<strong>{3, 4}</strong></div><div class="stat">集合 A<strong>{1, 2, 3, 4}</strong></div><div class="stat">集合 B<strong>{3, 4, 5, 6}</strong></div></div>
+      <div class="controls"><div class="control"><span>系数 a</span><input type="range" min="-3" max="3" step="0.1" value="1"><output>1</output></div><div class="control"><span>系数 b</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div><div class="control"><span>系数 c</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div></div>
+    </section>
+    <section class="thinking-panel">
+      <div class="card"><span class="badge">01 · 先预测</span><h2>你的直觉是什么？</h2><p class="question">初始时 A={1,2,3,4}，B={3,4,5,6}。把元素 2 从"仅 A"移到"A 与 B"，交集会怎样变化？</p><button class="option selected"><span class="letter">A</span>增加元素 2</button><button class="option"><span class="letter">B</span>减少元素 2</button><button class="option"><span class="letter">C</span>保持不变</button><button class="btn-primary">带着预测，开始实验 →</button></div>
+      <div class="concept"><div class="eyebrow">思考工具</div><h3>从"属于谁"开始</h3><p>把复杂条件拆成"属于 A"和"属于 B"两个判断。交集要求同时满足，并集要求至少满足一个。</p></div>
+    </section>
+  </div>
+  <footer><span>数理原典 · Mathesis</span><span>观察现象 → 理解关系 → 推理验证</span></footer>
+</main>
+<div class="swatch"><div class="swatch-title">B · 灰蓝 + 珊瑚橘</div><div class="swatch-colors"><div><div class="swatch-dot" style="background:#f1f5f9"></div><div class="swatch-label">灰蓝底</div></div><div><div class="swatch-dot" style="background:#ea580c"></div><div class="swatch-label">珊瑚橘</div></div><div><div class="swatch-dot" style="background:#1e293b"></div><div class="swatch-label">深墨</div></div><div><div class="swatch-dot" style="background:#0891b2"></div><div class="swatch-label">青碧</div></div></div></div>
+</body></html>

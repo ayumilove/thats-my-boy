@@ -3,34 +3,39 @@ const modules = window.TRAINING_MODULES;
 var fmt = fmtNum;
 const labels = ['定位卡点','基础一','基础二','解释规律','迁移练习','独立复核'];
 let current = 0;
-const sessions = modules.map(() => fresh());
-function fresh() { return { step:0, selected:null, confidence:'', checked:false, assisted:false, hint:false, stuck:'', results:{}, complete:false, labOpen:false, lab:{n:4,t1:2,t2:1,L:120,u:2,a:2,k:3,T:2,left:2,right:5,m:-1,c:1,power:2,v1:2,v2:6} }; }
+const persisted = window.LearningBridge?.safely(()=>window.LearningStore.read('training',{})) || {};
+const sessions = modules.map(m => {
+  const s=persisted[m.id];
+  return s && Number.isInteger(s.step) && s.step>=0 && s.step<6 && s.results && s.lab && (!s.checked||s.results[s.step]) ? {...fresh(),...s} : fresh();
+});
+function fresh() { return { attemptId:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),step:0, selected:null, confidence:'', checked:false, assisted:false, hint:false, stuck:'', results:{}, complete:false, labOpen:false, lab:{n:4,t1:2,t2:1,L:120,u:2,a:2,k:3,T:2,left:2,right:5,m:-1,c:1,power:2,v1:2,v2:6} }; }
+function persist() { window.LearningBridge?.safely(()=>{const saved=window.LearningStore.read('training',{});saved[modules[current].id]=state();window.LearningStore.write('training',saved);}); }
 function state() { return sessions[current]; }
 function question() { return modules[current].qs[state().step]; }
 function choose(index) { current=index; render(); }
 function statusText(s) { if(s.complete) return s.results[5]?.independent ? '本次通过' : '需再练'; return Object.keys(s.results).length ? '进行中' : ''; }
 function renderNav() {
-  el('training-nav').innerHTML=modules.map((m,i)=>`<button type="button" data-module="${i}" class="${i===current?'active':''}">${m.title}<span class="status">${statusText(sessions[i])}</span></button>`).join('');
-  document.querySelectorAll('[data-module]').forEach(b=>b.onclick=()=>choose(Number(b.dataset.module)));
+  window.CourseMenu?.setCurrent(modules[current].id);
 }
 function render() {
   const m=modules[current],s=state();
   renderNav(); el('current-name').textContent=m.title; el('module-title').textContent=m.title; el('level').textContent=m.level; el('goal').textContent=m.goal;
-  el('training-steps').innerHTML=labels.map((l,i)=>`<div class="step ${i===s.step&&!s.complete?'current':s.results[i]?'done':''}">${i+1} · ${l}</div>`).join('');
+  const phase=s.step===0?0:s.step===5?2:1;
+  el('training-steps').innerHTML=['定位卡点','按需补强','独立复核'].map((l,i)=>`<div class="step ${i===phase&&!s.complete?'current':i<phase||s.complete?'done':''}">${i+1} · ${l}</div>`).join('');
   renderQuestion(); renderLab(); renderTopicLink();
   if(el('session-summary').innerHTML) showSummary(false);
 }
 function renderTopicLink() {
   const m=modules[current];
   const topicNames={sets:'集合与集合运算',quad:'二次函数的参数',equation:'方程与不等式',property:'单调性与奇偶性',distance:'路程与位移',motion:'匀变速直线运动',force:'力、质量与加速度'};
-  const topicIdx={sets:0,quad:1,equation:2,property:3,distance:4,motion:5,force:6};
   const link=el('topic-link');
+  if(link)link.innerHTML='';
   if(link&&m.relatedTopic){
-    const idx=topicIdx[m.relatedTopic];
-    link.innerHTML=`<a href="index.html#topic=${idx}" class="topic-back">← 返回实验：${topicNames[m.relatedTopic]}</a>`;
+    link.innerHTML=`<a href="index.html#topic=${m.relatedTopic}" class="topic-back">← 返回实验：${topicNames[m.relatedTopic]}</a>`;
   }
 }
 function renderQuestion() {
+  persist();
   const s=state(),q=question();
   if(s.complete) {
     const independent=s.results[5]?.independent;
@@ -48,7 +53,7 @@ function renderQuestion() {
   ${s.checked?`<div class="explanation ${r.correct?'':'wrong'}" role="status"><strong>${r.correct?'本题判断正确。':'这一步需要修正。'}</strong><p class="solution">正确选项：${'ABC'[q.answer]} · ${q.options[q.answer]}</p><p>${q.why}</p>${s.step===0?`<p>${r.independent?'下面用解释题检查理解；也可以主动补基础。':'接下来回到两道前置基础题，找到具体卡点。'}</p>`:''}</div>`:''}
   <button class="primary" id="submit" ${!s.checked&&(s.selected===null||!s.confidence)?'disabled':''}>${s.checked?(s.step===5?'完成本次专项':s.step===0&&!r.independent?'进入基础补强 →':'继续下一步 →'):'检验判断'}</button>
   ${s.checked&&s.step===0&&r.independent?'<button class="quiet" id="foundation">我也想检查基础</button>':''}
-  <p class="session-tag">提示、实验辅助和首答结果分别记录在本次页面内。</p>`;
+  <p class="session-tag">提示、实验辅助和首答结果保存在此浏览器，刷新可继续。</p>`;
   document.querySelectorAll('[data-option]').forEach(b=>b.onclick=()=>{s.selected=Number(b.dataset.option);renderQuestion();renderLab()});
   document.querySelectorAll('[name=confidence]').forEach(e=>e.onchange=()=>{s.confidence=e.value;renderQuestion()});
   el('stuck').onchange=e=>{s.stuck=e.target.value;if(s.stuck){s.assisted=true;s.hint=true;}renderQuestion()};
@@ -57,32 +62,34 @@ function renderQuestion() {
   if(el('foundation'))el('foundation').onclick=()=>goStep(1);
 }
 function checkAnswer() {
-  const s=state();if(s.selected===null||!s.confidence)return;
+  const s=state();if(s.checked||s.selected===null||!s.confidence)return;
   const q=question(),correct=s.selected===q.answer;
   s.results[s.step]={correct,independent:correct&&!s.assisted&&s.confidence==='sure',assisted:s.assisted,confidence:s.confidence,stuck:s.stuck,skill:q.skill};
+  if(!s.results[s.step].independent)window.LearningBridge?.capture({sourceKey:'training:'+modules[current].id+':'+s.step,subject:window.Curriculum.get(modules[current].id).subject,question:q.text,studentAnswer:q.options[s.selected]+(s.stuck?'；卡点：'+s.stuck:''),expectedAnswer:q.options[q.answer]+'。'+q.why,node:modules[current].id,source:'专项练习：'+modules[current].title});
   s.checked=true;render();
 }
 function advance() {
   const s=state();if(!s.checked)return;
-  if(s.step===5){s.complete=true;render();return;}
+  if(s.step===5){s.complete=true;window.LearningBridge?.review(modules[current].id,s.results[5].independent?'independent':s.results[5].correct?'assisted':'retry',s.attemptId);render();return;}
   goStep(s.step===0?(s.results[0].independent?3:1):s.step+1);
 }
 function goStep(step) {
   const s=state();s.step=step;s.selected=null;s.checked=false;s.confidence='';s.assisted=false;s.hint=false;s.stuck='';s.labOpen=false;render();
 }
 function showSummary(scroll = true) {
-  el('session-summary').innerHTML=`<h2>本次练习情况</h2><p class="summarytext">\u201c本次通过\u201d仅表示复核题独立首答正确；未保存到设备或服务器。</p><div class="summarywrap"><table class="training-table"><thead><tr><th>专项</th><th>已答 / 6</th><th>需要回看的知识</th><th>状态</th></tr></thead><tbody>${modules.map((m,i)=>{const s=sessions[i],rs=Object.values(s.results),weak=rs.filter(r=>!r.independent).map(r=>r.skill+(r.stuck?'\uff08'+r.stuck+'\uff09':''));return `<tr><td>${m.title}</td><td>${rs.length}</td><td>${weak.length?weak.join('\u3001'):'尚无需要回看的记录'}</td><td>${statusText(s)||'未开始'}</td></tr>`}).join('')}</tbody></table></div>`;
+  el('session-summary').innerHTML=`<h2>练习情况</h2><p class="summarytext">\u201c本次通过\u201d仅表示复核题独立首答正确；保存在此浏览器。<a href="learning.html">查看错题与关联知识 →</a></p><div class="summarywrap"><table class="training-table"><thead><tr><th>专项</th><th>已答 / 6</th><th>需要回看的知识</th><th>状态</th></tr></thead><tbody>${modules.map((m,i)=>{const s=sessions[i],rs=Object.values(s.results),weak=rs.filter(r=>!r.independent).map(r=>r.skill+(r.stuck?'\uff08'+r.stuck+'\uff09':''));return `<tr><td>${m.title}</td><td>${rs.length}</td><td>${weak.length?weak.join('\u3001'):'尚无需要回看的记录'}</td><td>${statusText(s)||'未开始'}</td></tr>`}).join('')}</tbody></table></div>`;
   if(scroll) el('session-summary').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function range(key,label,min,max,step=1){return `<label class="control"><span>${label}</span><input type="range" data-lab="${key}" aria-label="${label}" min="${min}" max="${max}" step="${step}" value="${state().lab[key]}"><output id="value-${key}">${fmt(state().lab[key])}</output></label>`;}
 function readings(values){return '<div class="lab-readings">'+values.map(([k,v])=>`<div class="lab-reading">${k}<b>${v}</b></div>`).join('')+'</div>';}
 function renderLab() {
   const s=state(),kind=modules[current].lab;
+  s.lab=window.ScienceLabs.defaults(s.lab);
   if(!s.checked&&!s.labOpen&&!s.complete){
     el('lab-content').innerHTML=`<div class="lab-lock"><strong>先判断，再用图形验证</strong><p>选好一个答案后，可以打开实验帮助思考；本题将记为\u201c使用辅助\u201d。也可以独立提交后再观察。</p><button class="quiet" id="open-lab" ${s.selected===null?'disabled':''}>打开实验</button></div>`;
     el('open-lab').onclick=()=>{s.labOpen=true;s.assisted=true;renderQuestion();renderLab()};return;
   }
-  let controls='';
+  let controls=window.ScienceLabs.controls(kind,s.lab);
   if(kind==='time') controls=range('n','第 n 秒',1,8)+range('t1','第一段 / s',1,4,.5)+range('t2','第二段 / s',1,4,.5);
   if(kind==='rate') controls=range('v1','速度一 / m/s',1,10)+range('v2','速度二 / m/s',1,10)+range('t1','时间一 / s',1,4,.5)+range('t2','时间二 / s',1,4,.5);
   if(kind==='ratio')controls=range('u','初速度 / m/s',1,5)+range('k','末速为几倍',2,5)+range('T','总时间 / s',1,6);
@@ -92,7 +99,7 @@ function renderLab() {
   if(kind==='quadratic')controls=range('c','系数 a',-3,3,.5);
   if(kind==='roots')controls=range('power','根 1 的重数',1,4);
   el('lab-content').innerHTML='<div id="lab-figure"></div><div id="lab-values"></div><p class="lab-caption" id="lab-description"></p>'+controls;
-  drawLab(); document.querySelectorAll('[data-lab]').forEach(e=>e.oninput=()=>{s.lab[e.dataset.lab]=Number(e.value);el('value-'+e.dataset.lab).textContent=fmt(Number(e.value));drawLab()});
+  drawLab(); document.querySelectorAll('[data-lab]').forEach(e=>e.oninput=()=>{s.lab[e.dataset.lab]=Number(e.value);const output=el('value-'+e.dataset.lab);if(output)output.textContent=fmt(Number(e.value));drawLab();persist()});
 }
 // Pure calculations are shared with the numerical verification script.
 function segmentModel(L,t1,t2) {
@@ -101,6 +108,8 @@ function segmentModel(L,t1,t2) {
 }
 function drawLab() {
   const p=state().lab,kind=modules[current].lab;let art='',values=[],note='';
+  const science=window.ScienceLabs.draw(kind,p);
+  if(science){el('lab-figure').innerHTML=science.html;el('lab-values').innerHTML=readings(science.values);el('lab-description').textContent=science.note;return;}
   const timeline=(start,d1,d2)=>{const end=start+d1+d2,X=t=>55+(t-start)/(d1+d2)*480;let z=svgLine(55,100,535,100);z+=svgLine(X(start),100,X(start+d1),100,'#166534',9)+svgLine(X(start+d1),100,X(end),100,'#b45309',9);[start,start+d1,end].forEach(t=>z+=svgLine(X(t),90,X(t),112)+svgText(X(t)-14,137,fmt(t)+' s'));[start+d1/2,start+d1+d2/2].forEach((t,i)=>z+=svgDot(X(t),100,i?'#b45309':'#166534')+svgText(X(t)-25,68,fmt(t)+' s'));return z;};
   if(kind==='time'){
     art=svgText(30,24,`\u7b2c ${p.n} \u79d2\u5185\uff1a${p.n-1}\uff5e${p.n} s\uff1b\u7b2c ${p.n} \u79d2\u672b\uff1at=${p.n} s`)+timeline(0,p.t1,p.t2)+svgText(35,185,'\u5706\u70b9\u4ee3\u8868\u6bcf\u6bb5\u81ea\u5df1\u7684\u4e2d\u95f4\u65f6\u523b');
@@ -149,4 +158,11 @@ function drawLab() {
 }
 el('restart').onclick=()=>{sessions[current]=fresh();render();};
 el('summary').onclick=showSummary;
-render();
+function routeTraining() {
+  const value=typeof location==='undefined'?null:new URLSearchParams(location.hash.slice(1)).get('module');
+  const found=modules.findIndex(m=>m.id===value);
+  current=found>=0?found:/^\d+$/.test(value||'')&&Number(value)<modules.length?Number(value):0;
+  render();
+}
+if(window.addEventListener)window.addEventListener('hashchange',routeTraining);
+routeTraining();

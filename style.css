@@ -728,6 +728,9 @@ select {
 .asidebottom strong { font-size: 14px; }
 
 /* Training links */
+.learning-entry {padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.learning-entry a,#learning-notice a {color:var(--accent);font-weight:600}
+#learning-notice {padding:10px;border:1px solid var(--line)}
 .training-hint { margin-top: 18px; padding: 12px; background: #f0fdf4; border-radius: 6px; border-left: 3px solid var(--accent); }
 .training-hint strong { font-size: 14px; color: var(--accent); }
 .training-hint p { margin: 6px 0 0; font-size: 13px; }

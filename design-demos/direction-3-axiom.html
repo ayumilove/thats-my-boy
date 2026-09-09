@@ -1,0 +1,178 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方向三 · 公理 Axiom — Minimalist Scientific Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c1917;--muted:#78716c;--accent:#dc2626;--line:#e7e5e4;--bg:#fafaf9;--card:#ffffff;--side-bg:#fafaf9;--sans:'Noto Sans SC',-apple-system,'Segoe UI',sans-serif;--serif:'EB Garamond',Georgia,'Noto Serif SC',serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 var(--sans);display:flex;min-height:100vh;font-weight:400}
+/* ── Sidebar ── */
+aside{width:240px;background:var(--side-bg);border-right:1px solid var(--line);padding:40px 20px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:baseline;gap:0;text-decoration:none;color:var(--ink);margin-bottom:4px}
+.brand-text{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-1px;font-style:italic}
+.brand-text span{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:4px;color:var(--muted);display:block;margin-top:4px;text-transform:uppercase;font-style:normal}
+.divider{height:1px;background:var(--ink);margin:24px 0 20px;opacity:.15}
+.navlabel{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin:24px 0 10px;font-weight:500}
+nav{display:flex;flex-direction:column;gap:0}
+nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:0;text-align:left;padding:11px 0;margin:0;border-radius:0;font:14px/1.5 var(--sans);color:var(--muted);cursor:pointer;border-bottom:1px solid transparent;transition:all .15s;font-weight:400}
+nav button:hover{color:var(--ink)}
+nav button.active{color:var(--ink);font-weight:500;border-bottom-color:var(--accent)}
+.navicon{font-size:14px;width:20px;text-align:center;font-family:var(--serif);font-style:italic}
+.training-link{display:block;margin:24px 0 0;padding:0;text-decoration:none;color:var(--ink);font-size:13px;font-weight:500;border-top:1px solid var(--line);padding-top:20px;transition:color .15s}
+.training-link:hover{color:var(--accent)}
+.training-link::before{content:'→';margin-right:8px;color:var(--accent)}
+.training-link small{display:block;font-weight:300;color:var(--muted);margin-top:4px;font-size:12px;padding-left:18px}
+.aside-bottom{margin-top:auto;padding-top:24px;border-top:1px solid var(--line)}
+.aside-bottom .motto{font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.5}
+.aside-bottom p{font-size:12px;color:var(--muted);line-height:1.7;font-weight:300}
+.aside-bottom .hint{font-size:11px;color:#a8a29e;margin-top:12px}
+/* ── Main ── */
+main{flex:1;padding:0 48px;max-width:1360px}
+header{height:80px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted);font-weight:300}
+header .slash{margin:0 20px;opacity:.4}
+header .right{font-size:11px;letter-spacing:2px;text-transform:uppercase}
+/* ── Heading ── */
+.heading{display:flex;justify-content:space-between;align-items:flex-end;padding:48px 0 36px;border-bottom:1px solid var(--line)}
+.heading .eyebrow{font-size:11px;color:var(--accent);letter-spacing:4px;font-weight:500;text-transform:uppercase}
+.heading h1{font-family:var(--serif);font-size:38px;font-weight:400;letter-spacing:-1px;margin:12px 0 8px;line-height:1.15;font-style:italic}
+.heading .desc{font-size:14px;color:var(--muted);max-width:460px;font-weight:300;line-height:1.7}
+.btn-quiet{border:0;background:0;color:var(--muted);font-size:13px;cursor:pointer;transition:color .15s;padding:8px 0;font-weight:400;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line)}
+.btn-quiet:hover{color:var(--accent);text-decoration-color:var(--accent)}
+/* ── Steps ── */
+.steps{display:flex;gap:0;margin:32px 0 36px;border-bottom:1px solid var(--line)}
+.step{flex:1;padding:0 0 16px;display:flex;align-items:center;gap:14px;font-size:14px;color:#a8a29e;position:relative;font-weight:300}
+.step.current{color:var(--ink)}
+.step.current::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--accent)}
+.step.done{color:var(--ink)}
+.step-num{font-family:var(--serif);font-size:22px;font-style:italic;font-weight:400;width:28px;flex-shrink:0}
+.step.current .step-num{color:var(--accent)}
+.step.done .step-num{text-decoration:line-through;opacity:.5}
+.step-name{font-weight:400;font-size:14px}
+.step-hint{font-size:11px;margin-left:auto;color:#a8a29e;font-weight:300;white-space:nowrap}
+/* ── Workspace ── */
+.workspace{display:grid;grid-template-columns:1fr 360px;gap:36px;align-items:start}
+/* ── Experiment Panel ── */
+.experiment{background:var(--card);border:1px solid var(--line);border-radius:0;overflow:hidden}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;padding:20px 24px;border-bottom:1px solid var(--line)}
+.panel-head .title{font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic}
+.panel-head .hint{font-size:12px;color:#a8a29e;font-weight:300}
+.toolbar{display:flex;gap:0;padding:16px 24px 0;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.pill{border:0;border-bottom:2px solid transparent;background:0;color:var(--muted);padding:8px 16px 10px;font-size:13px;cursor:pointer;transition:all .15s;font-weight:400;margin-bottom:-1px}
+.pill:hover{color:var(--ink)}
+.pill.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:500}
+.visual-area{padding:16px 24px;min-height:200px}
+.visual-placeholder{background:var(--bg);border:1px solid var(--line);height:300px;display:grid;place-items:center;color:#a8a29e;font-size:14px;font-weight:300;font-style:italic}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+.stat{padding:18px 24px;border-right:1px solid var(--line);font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.stat:last-child{border-right:0}
+.stat strong{display:block;font-family:var(--serif);font-size:22px;font-weight:400;color:var(--ink);margin-top:6px;font-style:italic;letter-spacing:-.5px}
+.stat:first-child strong{color:var(--accent)}
+.controls{padding:20px 24px;background:var(--bg);border-top:1px solid var(--line)}
+.control{display:grid;grid-template-columns:100px 1fr 56px;gap:16px;align-items:center;margin:10px 0;font-size:13px;color:var(--muted);font-weight:400}
+.control output{text-align:center;font-size:14px;color:var(--accent);font-family:var(--serif);font-style:italic;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent);height:2px;cursor:ew-resize;-webkit-appearance:none;appearance:none;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:ew-resize;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+/* ── Thinking Panel ── */
+.thinking-panel .card{background:var(--card);border:1px solid var(--line);border-radius:0;padding:32px}
+.badge{display:inline-block;font-size:11px;font-weight:500;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
+.thinking-panel h2{font-family:var(--serif);font-size:24px;font-weight:400;margin:12px 0 16px;line-height:1.35;font-style:italic}
+.thinking-panel .question{font-size:15px;line-height:1.9;color:var(--ink);margin:20px 0;font-weight:400}
+.option{display:flex;align-items:baseline;gap:14px;padding:14px 0;width:100%;border:0;border-bottom:1px solid var(--line);background:0;margin:0;font-size:14px;color:var(--muted);cursor:pointer;transition:all .15s;text-align:left;font-weight:400}
+.option:hover{color:var(--ink);padding-left:8px}
+.option.selected{color:var(--accent);border-bottom-color:var(--accent)}
+.option .letter{font-family:var(--serif);font-size:16px;font-style:italic;color:#a8a29e;flex-shrink:0;width:20px}
+.option.selected .letter{color:var(--accent)}
+.btn-primary{border:0;background:var(--ink);color:#fafaf9;border-radius:0;padding:16px;width:100%;margin-top:24px;font-size:14px;font-weight:500;cursor:pointer;letter-spacing:1px;transition:background .15s}
+.btn-primary:hover{background:var(--accent)}
+.concept{padding:28px 0 0;border-top:1px solid var(--line);margin-top:24px}
+.concept .label{font-size:10px;color:#a8a29e;letter-spacing:3px;text-transform:uppercase;font-weight:500}
+.concept h3{font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic;margin:10px 0}
+.concept p{font-size:14px;color:var(--muted);line-height:1.9;font-weight:300}
+footer{font-size:11px;color:#a8a29e;display:flex;justify-content:space-between;padding:28px 0;border-top:1px solid var(--line);margin-top:48px;letter-spacing:1px;font-weight:300}
+</style></head>
+<body>
+<aside>
+  <a class="brand" href="#">
+    <div class="brand-text"><i>Axiom</i><span>公理 · 数理实验室</span></div>
+  </a>
+  <div class="divider"></div>
+  <a class="training-link" href="#">专项补强训练<small>先定位卡点，再补基础</small></a>
+  <div class="navlabel">Mathematics</div>
+  <nav>
+    <button class="active"><span class="navicon">∩</span>集合与集合运算</button>
+    <button><span class="navicon">∿</span>二次函数的参数</button>
+    <button><span class="navicon">≶</span>方程与不等式</button>
+    <button><span class="navicon">↗</span>单调性与奇偶性</button>
+  </nav>
+  <div class="navlabel">Physics</div>
+  <nav>
+    <button><span class="navicon">⇄</span>路程与位移</button>
+    <button><span class="navicon">⌁</span>匀变速直线运动</button>
+    <button><span class="navicon">→</span>力、质量与加速度</button>
+  </nav>
+  <div class="aside-bottom">
+    <div class="motto">"Every attempt is worth encouraging."</div>
+    <p>先提出猜想，再寻找证据。</p>
+    <div class="hint">本次探索不保存学习记录</div>
+  </div>
+</aside>
+<main>
+  <header>
+    <span>探索工作台<span class="slash">/</span>集合与集合运算</span>
+    <span class="right">人教版 · 高一</span>
+  </header>
+  <section class="heading">
+    <div>
+      <div class="eyebrow">Mathematics · 01</div>
+      <h1>Sets & Operations<br>集合与集合运算</h1>
+      <p class="desc">移动一个元素，观察集合之间的关系如何改变。</p>
+    </div>
+    <button class="btn-quiet">重新开始</button>
+  </section>
+  <div class="steps">
+    <div class="step current"><span class="step-num">i</span><span class="step-name">预测</span><span class="step-hint">提出你的猜想</span></div>
+    <div class="step"><span class="step-num">II</span><span class="step-name">实验</span><span class="step-hint">用变化验证</span></div>
+    <div class="step"><span class="step-num">III</span><span class="step-name">解释</span><span class="step-hint">说清背后的原因</span></div>
+  </div>
+  <div class="workspace">
+    <section class="experiment">
+      <div class="panel-head">
+        <div class="title">交互实验</div>
+        <span class="hint">先作出你的预测</span>
+      </div>
+      <div class="toolbar">
+        <button class="pill active">A ∩ B · 交集</button>
+        <button class="pill">A ∪ B · 并集</button>
+        <button class="pill">∁ᵤ A · 补集</button>
+      </div>
+      <div class="visual-area"><div class="visual-placeholder">「维恩图交互区域」</div></div>
+      <div class="readout">
+        <div class="stat">运算结果<strong>{3, 4}</strong></div>
+        <div class="stat">集合 A<strong>{1, 2, 3, 4}</strong></div>
+        <div class="stat">集合 B<strong>{3, 4, 5, 6}</strong></div>
+      </div>
+      <div class="controls">
+        <div class="control"><span>系数 a</span><input type="range" min="-3" max="3" step="0.1" value="1"><output>1</output></div>
+        <div class="control"><span>系数 b</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div>
+        <div class="control"><span>系数 c</span><input type="range" min="-5" max="5" step="0.1" value="0"><output>0</output></div>
+      </div>
+    </section>
+    <section class="thinking-panel">
+      <div class="card">
+        <span class="badge">Phase I · 预测</span>
+        <h2>你的直觉是什么？</h2>
+        <p class="question">初始时 A = {1,2,3,4}，B = {3,4,5,6}。把元素 2 从"仅 A"移到"A 与 B"，交集会怎样变化？</p>
+        <button class="option selected"><span class="letter">a.</span>增加元素 2</button>
+        <button class="option"><span class="letter">b.</span>减少元素 2</button>
+        <button class="option"><span class="letter">c.</span>保持不变</button>
+        <button class="btn-primary">带着预测，开始实验</button>
+      </div>
+      <div class="concept">
+        <div class="label">思考工具</div>
+        <h3>从"属于谁"开始</h3>
+        <p>把复杂条件拆成"属于 A"和"属于 B"两个判断。交集要求同时满足，并集要求至少满足一个。</p>
+      </div>
+    </section>
+  </div>
+  <footer><span>Axiom · 公理</span><span>观察 → 理解 → 验证</span></footer>
+</main>
+</body></html>
