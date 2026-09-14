@@ -1,8 +1,7 @@
 /**
  * 可视化绘图模块
- * 主题 0（集合维恩图）和 4（路程位移时间轴）使用原生 SVG
- * 主题 1-3（函数图像）和 5（运动学双图）使用 JSXGraph 绘图 + HTML 滑块控制
- * 主题 6（受力分析）使用原生 SVG
+ * 主题 0（集合维恩图）、6（正方体线面角）、7（路程位移时间轴）、9（受力分析）使用原生 SVG
+ * 主题 1-3（函数图像）、4（圆与圆周角）、5（直线与圆）、8（运动学双图）使用 JSXGraph 绘图 + HTML 滑块控制
  */
 
 let storeValues = [];
@@ -106,6 +105,62 @@ function draw() {
   }
 
   if (idx === 4) {
+    /* ── 圆与圆周角（JSXGraph 绘图 + HTML 滑块）─────── */
+    drawCircle();
+    return;
+  }
+
+  if (idx === 5) {
+    /* ── 直线与圆的位置关系（JSXGraph + HTML 滑块）──── */
+    drawLineCircle();
+    return;
+  }
+
+  if (idx === 6) {
+    /* ── 正方体与线面角（斜二测 SVG）───────────────── */
+    destroyJxg();
+    const sc = 100, ox = 150, oy = 252;
+    const prj = (x, y, z) => [ox + (x + .5 * y) * sc, oy - (z + .5 * y) * sc];
+    const [ax, ay] = prj(0, 0, 0), [bx, by] = prj(1, 0, 0),
+      [cx, cy] = prj(1, 1, 0), [dx, dy] = prj(0, 1, 0),
+      [a1x, a1y] = prj(0, 0, 1), [b1x, b1y] = prj(1, 0, 1),
+      [c1x, c1y] = prj(1, 1, 1), [d1x, d1y] = prj(0, 1, 1);
+    const t = p.cuT;
+    const [px, py] = prj(t, t, t), [qpx, qpy] = prj(t, t, 0);
+
+    s = txt(24, 28, '正方体 ABCD-A₁B₁C₁D₁ · 斜二测画法');
+    /* 后方三条棱画虚线 */
+    s += line(dx, dy, cx, cy, '#b8c4d0', 1.5, '6 4') + line(ax, ay, dx, dy, '#b8c4d0', 1.5, '6 4') + line(dx, dy, d1x, d1y, '#b8c4d0', 1.5, '6 4');
+    s += line(ax, ay, bx, by, '#8a97a5', 2) + line(bx, by, cx, cy, '#8a97a5', 2)
+      + line(cx, cy, c1x, c1y, '#8a97a5', 2) + line(ax, ay, a1x, a1y, '#8a97a5', 2)
+      + line(bx, by, b1x, b1y, '#8a97a5', 2) + line(a1x, a1y, b1x, b1y, '#8a97a5', 2)
+      + line(b1x, b1y, c1x, c1y, '#8a97a5', 2) + line(c1x, c1y, d1x, d1y, '#8a97a5', 2)
+      + line(d1x, d1y, a1x, a1y, '#8a97a5', 2);
+    /* AP′ 投影与体对角线 */
+    s += line(ax, ay, qpx, qpy, JXG_COLORS.muted, 2);
+    s += line(qpx, qpy, cx, cy, JXG_COLORS.muted, 1, '5 4');
+    s += line(ax, ay, c1x, c1y, '#c9d4e0', 1.5);
+    s += line(ax, ay, px, py, JXG_COLORS.blue, 3.5);
+    s += line(px, py, qpx, qpy, JXG_COLORS.teal, 3);
+    /* 线面角 θ 标注 */
+    const r0 = 34, a1 = Math.atan2(py - ay, px - ax), a2 = Math.atan2(qpy - ay, qpx - ax);
+    s += `<path d="M${ax + r0 * Math.cos(a1)},${ay + r0 * Math.sin(a1)} A${r0},${r0} 0 0 1 ${ax + r0 * Math.cos(a2)},${ay + r0 * Math.sin(a2)}" fill="none" stroke="#71717a" stroke-width="1.5"/>`;
+    s += txt(ax + 40, ay - 25, 'θ', '#71717a', 14);
+    s += dot(px, py, JXG_COLORS.blue) + dot(qpx, qpy, JXG_COLORS.teal);
+    s += txt(px - 24, py + 2, 'P', JXG_COLORS.blue, 15) + txt(qpx + 10, qpy + 22, 'P′', JXG_COLORS.teal, 15);
+    s += txt(ax - 18, ay + 16, 'A') + txt(bx - 4, by + 22, 'B') + txt(cx + 10, cy + 4, 'C') + txt(dx + 8, dy - 6, 'D')
+      + txt(a1x - 20, a1y + 2, 'A₁') + txt(b1x + 6, b1y + 4, 'B₁') + txt(c1x + 10, c1y, 'C₁') + txt(d1x + 4, d1y - 10, 'D₁');
+    s += txt(415, 44, 'PP′ 垂直于底面 ABCD', JXG_COLORS.teal, 13);
+    s += txt(415, 66, 'AP′ 是 AP 在底面内的投影', '#71717a', 13);
+
+    values = [
+      ['AP（棱长 a=1）', n(t * Math.sqrt(3))],
+      ['PP′ 高度', n(t)],
+      ['PP′ / AP', n(1 / Math.sqrt(3)) + '（不变）']
+    ];
+  }
+
+  if (idx === 7) {
     /* ── 路程与位移（保留 SVG）──────────────────────── */
     destroyJxg();
     const X = x => 320 + x * 26;
@@ -126,13 +181,13 @@ function draw() {
     ];
   }
 
-  if (idx === 5) {
+  if (idx === 8) {
     /* ── 匀变速直线运动 · x–t + v–t 双图（JSXGraph）── */
     drawMotion();
     return;
   }
 
-  if (idx === 6) {
+  if (idx === 9) {
     /* ── 力、质量与加速度（保留 SVG）────────────────── */
     destroyJxg();
     const net = p.fr - p.fl;
@@ -301,7 +356,86 @@ function drawProp() {
   showValuesProp();
 }
 
-/* ── 主题 5：匀变速直线运动 ────────────────────────── */
+/* ── 主题 4：圆与圆周角 ────────────────────────────── */
+function drawCircle() {
+  const divId = 'jxg-circle';
+  const R = 3;
+  const rad = d => d * Math.PI / 180;
+  const angA = () => 90 + p.cirArc / 2;
+  const angB = () => 90 - p.cirArc / 2;
+  const angC = () => angA() + 12 + (p.cirPos / 100) * (336 - p.cirArc);
+
+  if (!_jxg.board || $('#visual').querySelector('#' + divId) === null) {
+    destroyJxg();
+    $('#visual').innerHTML = '<div id="' + divId + '" style="width:100%;height:340px"></div>';
+    _jxg.board = createBoard(divId, jxgOpts([-4.2, 4.6, 4.2, -4.6]));
+    if (!_jxg.board) return;
+
+    const o = _jxg.board.create('point', [0, 0],
+      { color: JXG_COLORS.muted, size: 3, name: 'O', fixed: true });
+    const pt = (ang, name, color) => _jxg.board.create('point',
+      [() => R * Math.cos(rad(ang())), () => R * Math.sin(rad(ang()))],
+      { color, size: 4, name, fixed: true });
+
+    const a = pt(angA, 'A', JXG_COLORS.teal),
+      b = pt(angB, 'B', JXG_COLORS.teal),
+      c = pt(angC, 'C', JXG_COLORS.blue);
+
+    _jxg.objs = {
+      circle: _jxg.board.create('circle', [[0, 0], R],
+        { strokeColor: JXG_COLORS.axis, strokeWidth: 2, highlight: false }),
+      o, a, b, c,
+      oa: _jxg.board.create('segment', [o, a],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 1.5, highlight: false }),
+      ob: _jxg.board.create('segment', [o, b],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 1.5, highlight: false }),
+      ca: _jxg.board.create('segment', [c, a],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2.5, highlight: false }),
+      cb: _jxg.board.create('segment', [c, b],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2.5, highlight: false })
+    };
+  }
+
+  _jxg.board.update();
+  showValuesCircle();
+}
+
+/* ── 主题 5：直线与圆的位置关系 ─────────────────────── */
+function drawLineCircle() {
+  const divId = 'jxg-lc';
+
+  if (!_jxg.board || $('#visual').querySelector('#' + divId) === null) {
+    destroyJxg();
+    $('#visual').innerHTML = '<div id="' + divId + '" style="width:100%;height:340px"></div>';
+    _jxg.board = createBoard(divId, jxgOpts([-6.5, 6.8, 6.5, -6.8]));
+    if (!_jxg.board) return;
+
+    const o = _jxg.board.create('point', [0, 0],
+      { color: JXG_COLORS.muted, size: 3, name: 'O', fixed: true });
+    const f = _jxg.board.create('point',
+      [() => -3 * p.lcC / 25, () => -4 * p.lcC / 25],
+      { color: JXG_COLORS.teal, size: 3, name: 'F', fixed: true });
+
+    _jxg.objs = {
+      o, f,
+      circle: _jxg.board.create('circle', [[0, 0], () => p.lcR],
+        { strokeColor: JXG_COLORS.blue, strokeWidth: 2 }),
+      line: _jxg.board.create('functiongraph',
+        [x => (-p.lcC - 3 * x) / 4],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 2 }),
+      of: _jxg.board.create('segment', [o, f],
+        { strokeColor: JXG_COLORS.teal, strokeWidth: 1.5, dash: 2 }),
+      dlabel: _jxg.board.create('text',
+        [() => -3 * p.lcC / 50 + .4, () => -4 * p.lcC / 50, () => 'd = ' + n(Math.abs(p.lcC) / 5)],
+        { color: JXG_COLORS.teal, fontSize: 13 })
+    };
+  }
+
+  _jxg.board.update();
+  showValuesLineCircle();
+}
+
+/* ── 主题 8：匀变速直线运动 ────────────────────────── */
 function drawMotion() {
   const f = t => p.v * t + .5 * p.acc * t * t;
   const v = t => p.v + p.acc * t;
@@ -382,6 +516,37 @@ function showValuesProp() {
   stats(values);
   storeValues = values;
   renderMath($('#readout'));
+}
+
+function showValuesCircle() {
+  const R = 3;
+  const rad = d => d * Math.PI / 180;
+  const ac = [R * Math.cos(rad(90 + p.cirArc / 2)), R * Math.sin(rad(90 + p.cirArc / 2))];
+  const bc = [R * Math.cos(rad(90 - p.cirArc / 2)), R * Math.sin(rad(90 - p.cirArc / 2))];
+  const cd = 90 + p.cirArc / 2 + 12 + (p.cirPos / 100) * (336 - p.cirArc);
+  const cc = [R * Math.cos(rad(cd)), R * Math.sin(rad(cd))];
+  const v1 = [ac[0] - cc[0], ac[1] - cc[1]], v2 = [bc[0] - cc[0], bc[1] - cc[1]];
+  const cosv = (v1[0] * v2[0] + v1[1] * v2[1]) / (Math.hypot(v1[0], v1[1]) * Math.hypot(v2[0], v2[1]));
+  const inscribed = Math.acos(Math.max(-1, Math.min(1, cosv))) * 180 / Math.PI;
+  const values = [
+    ['圆心角 ∠AOB', n(p.cirArc) + '°'],
+    ['圆周角 ∠ACB（测量）', n(inscribed) + '°'],
+    ['比值 ∠AOB : ∠ACB', n(p.cirArc / inscribed) + ' : 1']
+  ];
+  stats(values);
+  storeValues = values;
+}
+
+function showValuesLineCircle() {
+  const d = Math.abs(p.lcC) / 5;
+  const eps = 1e-9;
+  const values = [
+    ['圆心距 d = |C| / 5', n(d)],
+    ['位置关系', d < p.lcR - eps ? '相交 · 2 个公共点' : Math.abs(d - p.lcR) <= eps ? '相切 · 1 个公共点' : '相离 · 无公共点'],
+    ['弦长', d < p.lcR - eps ? n(2 * Math.sqrt(p.lcR * p.lcR - d * d)) : Math.abs(d - p.lcR) <= eps ? '0' : '—']
+  ];
+  stats(values);
+  storeValues = values;
 }
 
 function showValuesMotion() {

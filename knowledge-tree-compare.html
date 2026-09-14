@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识图谱结构对比</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --card: #fff; --accent: #1a7a5a; --muted: #6b7280;
+    --line: #e5e7eb; --red: #FF695A; --yellow: #FFBE4F; --blue: #50AAFF; --green: #30E8A8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: #1f2937; padding: 24px; }
+  h1 { font-size: 22px; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width:900px) { .panels { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .panel h2 { font-size: 16px; margin-bottom: 4px; }
+  .panel .desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .tree-node { position: relative; padding-left: 20px; }
+  .tree-node::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .tree-node:last-child::before { bottom: 50%; }
+  .tree-item { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
+  .tree-item::before { content: ''; position: absolute; left: -14px; top: 50%; width: 14px; height: 2px; background: var(--line); }
+  .tree-item .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tree-item .dot.has-training { background: var(--accent); }
+  .tree-item .dot.no-training { background: var(--line); }
+  .tree-item .label { flex: 1; }
+  .tree-item .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #ecfdf5; color: var(--accent); }
+  .tree-item .tag.dag { background: #fef3c7; color: #92400e; }
+  .category-label { font-weight: 700; font-size: 14px; color: var(--accent); padding: 8px 0 4px; }
+  .root-label { font-weight: 700; font-size: 15px; padding: 4px 0 8px; border-bottom: 2px solid var(--accent); margin-bottom: 4px; }
+
+  /* DAG visualization */
+  .dag-canvas { width: 100%; height: 420px; }
+
+  /* Summary stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media(max-width:600px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: var(--card); border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-card .label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--muted); }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<h1>知识图谱结构对比</h1>
+<p class="subtitle">当前课程 DAG（有向无环图）vs XDF 分类树 — 基于 14 个数学知识点</p>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">14</div><div class="label">知识点总数</div></div>
+  <div class="stat-card"><div class="num">10</div><div class="label">有训练模块</div></div>
+  <div class="stat-card"><div class="num">3</div><div class="label">多父节点 (DAG)</div></div>
+  <div class="stat-card"><div class="num">7</div><div class="label">分类树分支</div></div>
+</div>
+
+<div class="panels">
+  <!-- Left: Current DAG -->
+  <div class="panel">
+    <h2>当前结构：先修关系 DAG</h2>
+    <p class="desc">节点可以有多个先修课程，形成有向无环图而非严格树</p>
+    <canvas class="dag-canvas" id="dagCanvas"></canvas>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--accent)"></span> 有训练模块</span>
+      <span><span class="dot" style="background:var(--line)"></span> 无训练模块</span>
+      <span><span class="dot" style="background:var(--red)"></span> 多父节点</span>
+    </div>
+  </div>
+
+  <!-- Right: XDF-style Tree -->
+  <div class="panel">
+    <h2>XDF 风格：分类层级树</h2>
+    <p class="desc">按数学领域分组，每个节点只有一个父分类，形成严格树</p>
+    <div id="treeView"></div>
+  </div>
+</div>
+
+<script>
+const nodes = [
+  { id:"proposition",   title:"命题与常用逻辑用语",   prereqs:[],              training:true  },
+  { id:"quantifier",    title:"全称量词与存在量词",   prereqs:["proposition"],  training:true  },
+  { id:"sets",          title:"集合与集合运算",       prereqs:["proposition"],  training:false },
+  { id:"ineq-basic",    title:"不等式性质与作差法",   prereqs:[],              training:true  },
+  { id:"quad",          title:"二次函数的参数",       prereqs:[],              training:false },
+  { id:"param-quad",    title:"含参一元二次不等式",   prereqs:["ineq-basic","quad"], training:true },
+  { id:"equation",      title:"方程与不等式",         prereqs:["quad","param-quad"], training:false },
+  { id:"property",      title:"单调性与奇偶性",       prereqs:[],              training:false },
+  { id:"circle",        title:"圆与圆周角",           prereqs:[],              training:false },
+  { id:"linecircle",    title:"直线与圆的位置关系",   prereqs:["equation"],     training:false },
+  { id:"cube",          title:"正方体与线面角",       prereqs:[],              training:false },
+  { id:"sign",          title:"负数、数轴与不等号",   prereqs:[],              training:true  },
+  { id:"quadratic",     title:"二次不等式与参数分类", prereqs:["sign","quad"],  training:true  },
+  { id:"roots",         title:"穿根法与重根",         prereqs:["quadratic"],    training:true  },
+];
+
+// ── DAG Canvas Drawing ──
+(function drawDAG() {
+  const canvas = document.getElementById('dagCanvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+
+  // Position nodes in layers
+  const layers = [
+    ["proposition","ineq-basic","quad","sign","property","circle","cube"],
+    ["quantifier","sets","param-quad","quadratic"],
+    ["equation","roots"],
+    ["linecircle"]
+  ];
+
+  const pos = {};
+  layers.forEach((layer, li) => {
+    const y = 50 + li * 110;
+    const spacing = W / (layer.length + 1);
+    layer.forEach((id, i) => {
+      pos[id] = { x: spacing * (i + 1), y };
+    });
+  });
+
+  // Draw edges
+  ctx.strokeStyle = '#d1d5db';
+  ctx.lineWidth = 1.5;
+  nodes.forEach(n => {
+    n.prereqs.forEach(p => {
+      const from = pos[p], to = pos[n.id];
+      if (from && to) {
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y + 16);
+        const midY = (from.y + to.y) / 2;
+        ctx.bezierCurveTo(from.x, midY, to.x, midY, to.x, to.y - 16);
+        ctx.stroke();
+        // Arrow
+        ctx.beginPath();
+        ctx.moveTo(to.x - 4, to.y - 20);
+        ctx.lineTo(to.x, to.y - 16);
+        ctx.lineTo(to.x + 4, to.y - 20);
+        ctx.fillStyle = '#d1d5db';
+        ctx.fill();
+      }
+    });
+  });
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const p = pos[n.id];
+    const multiParent = n.prereqs.length > 1;
+    const r = 16;
+
+    // Circle
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    if (multiParent) ctx.fillStyle = '#FF695A';
+    else if (n.training) ctx.fillStyle = '#1a7a5a';
+    else ctx.fillStyle = '#e5e7eb';
+    ctx.fill();
+
+    // Label
+    ctx.fillStyle = '#1f2937';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    const shortTitle = n.title.length > 8 ? n.title.slice(0, 7) + '…' : n.title;
+    ctx.fillText(shortTitle, p.x, p.y + r + 14);
+
+    // Multi-parent indicator
+    if (multiParent) {
+      ctx.fillStyle = '#92400e';
+      ctx.font = '9px sans-serif';
+      ctx.fillText('(' + n.prereqs.length + '父)', p.x, p.y + r + 26);
+    }
+  });
+})();
+
+// ── Tree View ──
+(function buildTree() {
+  const tree = {
+    '数学': {
+      '常用逻辑用语': [
+        { id:'proposition', title:'命题与常用逻辑用语', training:true },
+        { id:'quantifier', title:'全称量词与存在量词', training:true },
+      ],
+      '集合': [
+        { id:'sets', title:'集合与集合运算', training:false },
+      ],
+      '不等式': [
+        { id:'sign', title:'负数、数轴与不等号', training:true },
+        { id:'ineq-basic', title:'不等式性质与作差法', training:true },
+        { id:'quadratic', title:'二次不等式与参数分类', training:true },
+        { id:'roots', title:'穿根法与重根', training:true },
+        { id:'param-quad', title:'含参一元二次不等式', training:true },
+      ],
+      '函数': [
+        { id:'quad', title:'二次函数的参数', training:false },
+        { id:'property', title:'单调性与奇偶性', training:false },
+      ],
+      '方程': [
+        { id:'equation', title:'方程与不等式', training:false },
+      ],
+      '几何 · 圆': [
+        { id:'circle', title:'圆与圆周角', training:false },
+        { id:'linecircle', title:'直线与圆的位置关系', training:false },
+      ],
+      '几何 · 立体': [
+        { id:'cube', title:'正方体与线面角', training:false },
+      ],
+    }
+  };
+
+  const container = document.getElementById('treeView');
+  let html = '<div class="root-label">📐 数学</div>';
+
+  for (const [cat, items] of Object.entries(tree['数学'])) {
+    html += '<div class="category-label">' + cat + '</div>';
+    html += '<div class="tree-node">';
+    items.forEach((item, i) => {
+      const isLast = i === items.length - 1;
+      html += '<div class="tree-item">';
+      html += '<span class="dot ' + (item.training ? 'has-training' : 'no-training') + '"></span>';
+      html += '<span class="label">' + item.title + '</span>';
+      if (item.training) html += '<span class="tag">有训练</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+})();
+</script>
+</body>
+</html>

@@ -26,7 +26,8 @@ function init(i) {
   tchecked = false;
   saved = null;
   op = 'intersection';
-  p = { a: 1, b: 0, c: 0, k: 1, x: 2, kind: 0, right: 6, left: 2, v: 4, acc: -2, t: 0, fr: 10, fl: 2, m: 2 };
+  p = { a: 1, b: 0, c: 0, k: 1, x: 2, kind: 0, right: 6, left: 2, v: 4, acc: -2, t: 0, fr: 10, fl: 2, m: 2,
+        cirArc: 120, cirPos: 40, lcC: 12, lcR: 3, cuT: .45 };
   members = { 1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 0, 8: 0 };
   render();
 }
@@ -93,6 +94,9 @@ function task() {
       '固定 a=1、b=0，拖动 c 到 2。然后保留一组结果，分别改变 a 和 b。',
       '把 k 从 1 慢慢拖到 −1，观察交点数量；切换不等式，留意端点。',
       '切换不同函数，拖动 x，比较 f(x) 与 f(−x)，再观察整个图像。',
+      '固定圆心角 120°，把 C 沿不经过 A、B 的弧移动到几个不同位置；再把圆心角改为 180°。',
+      '固定 r=3，把 C 从 20 拖到 −20，数一数公共点个数；停在 ±15 附近观察相切。',
+      '拖动 P 从 A 走到 C₁，盯住"PP′ / AP"这一个读数，再看 θ 角是否变化。',
       '拖动右行、左行距离，尝试让物体返回原点，再越过原点。',
       '保留默认参数，播放或拖动时间到 2 s、4 s，对比两幅图。',
       '先固定两个力，把质量从 2 kg 改为 4 kg。再让左右两个力相等。'
@@ -202,12 +206,24 @@ function renderControls() {
       + '<option value="0">x²</option><option value="1">x² + 2</option><option value="2">(x − 1)²</option><option value="3">x³</option>'
       + '</select></label>' + slider('x', '取样点 x', -3, 3, .1);
 
-  /* 路程与位移 */
+  /* 圆与圆周角 */
   if (idx === 4)
+    html += slider('cirArc', '圆心角 α / °', 40, 220, 5) + slider('cirPos', 'C 在弧上的位置', 0, 100, 1);
+
+  /* 直线与圆的位置关系 */
+  if (idx === 5)
+    html += slider('lcC', '直线常数 C', -20, 20, .5) + slider('lcR', '圆半径 r', 1, 5, .5);
+
+  /* 正方体与线面角 */
+  if (idx === 6)
+    html += slider('cuT', 'P 在 AC₁ 上的位置 t', .05, .95, .01);
+
+  /* 路程与位移 */
+  if (idx === 7)
     html += slider('right', '向右距离 / m', 0, 10, .5) + slider('left', '向左距离 / m', 0, 10, .5);
 
   /* 匀变速直线运动 */
-  if (idx === 5)
+  if (idx === 8)
     html += `<div class="playrow">`
       + `<button class="quiet" id="play" ${stage === 0 ? 'disabled' : ''}>${timer ? 'Ⅱ 暂停' : '▷ 播放'}</button>`
       + `<button class="quiet" id="step" ${stage === 0 ? 'disabled' : ''}>前进 0.1 s</button>`
@@ -218,7 +234,7 @@ function renderControls() {
       + '<div class="notes">拖动 x–t 图上的滑块 t 观察运动。</div>';
 
   /* 力、质量与加速度 */
-  if (idx === 6)
+  if (idx === 9)
     html += slider('fr', '向右力 / N', 0, 20, 1) + slider('fl', '向左力 / N', 0, 20, 1) + slider('m', '质量 / kg', 1, 10, .5);
 
   $('#controls').innerHTML = html;

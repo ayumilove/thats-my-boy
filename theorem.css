@@ -1,0 +1,422 @@
+/* 定理列表页样式 */
+.theorem-page {
+  font-family: system-ui, "Microsoft YaHei", sans-serif;
+}
+
+.theorem-page main {
+  max-width: 1200px;
+  margin-left: 260px;
+  padding: 0 44px;
+}
+
+.theorem-page h1 {
+  font-family: 'Noto Serif SC', Georgia, serif;
+  font-size: 32px;
+  margin: 8px 0 6px;
+}
+
+.theorem-page .subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 8px 0 24px;
+}
+
+/* 分类筛选 */
+.category-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.category-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: oklch(94% 0.012 150);
+  border-color: var(--accent);
+}
+
+.category-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+/* 定理卡片 */
+.theorem-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 24px 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.theorem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  background: oklch(98% 0.006 150);
+}
+
+.theorem-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-family: 'Noto Serif SC', Georgia, serif;
+  color: var(--ink);
+}
+
+.theorem-category {
+  font-size: 12px;
+  color: var(--accent);
+  background: oklch(93% 0.025 150);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.theorem-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.theorem-diagram {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theorem-diagram svg {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+}
+
+/* ═══ 交互实验组件（theorem-lab） ═══ */
+.theorem-lab {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: start;
+}
+
+.theorem-lab .lab-stage svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.theorem-lab .th-handle {
+  cursor: grab;
+}
+
+.theorem-lab .th-handle:active {
+  cursor: grabbing;
+}
+
+.theorem-lab .th-handle-hit {
+  fill: transparent;
+}
+
+.theorem-lab .th-handle-dot {
+  fill: var(--accent);
+  stroke: white;
+  stroke-width: 2;
+  transition: r 0.12s ease;
+}
+
+.theorem-lab .th-handle:hover .th-handle-dot {
+  r: 8;
+}
+
+.lab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lab-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lab-sliders:empty {
+  display: none;
+}
+
+.lab-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.lab-slider-name {
+  flex: 0 0 auto;
+  min-width: 76px;
+  color: var(--muted);
+}
+
+.lab-slider input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.lab-slider-val {
+  flex: 0 0 auto;
+  min-width: 42px;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lab-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lab-readout:empty {
+  display: none;
+}
+
+.lab-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: white;
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.lab-chip-label {
+  color: var(--muted);
+}
+
+.lab-chip-value {
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.lab-chip.tone-good {
+  border-color: oklch(80% 0.09 150);
+  background: oklch(96% 0.03 150);
+}
+
+.lab-chip.tone-good .lab-chip-value {
+  color: var(--accent);
+}
+
+.lab-chip.tone-warn {
+  border-color: oklch(85% 0.08 75);
+  background: oklch(97% 0.03 75);
+}
+
+.lab-chip.tone-warn .lab-chip-value {
+  color: oklch(48% 0.11 75);
+}
+
+.lab-chip.tone-bad {
+  border-color: oklch(85% 0.08 25);
+  background: oklch(97% 0.025 25);
+}
+
+.lab-chip.tone-bad .lab-chip-value {
+  color: oklch(50% 0.16 25);
+}
+
+.lab-hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.theorem-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.theorem-statement {
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 16px;
+  background: oklch(96% 0.014 150);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+
+.theorem-statement .katex {
+  font-size: 1.1em;
+}
+
+/* 证明过程 */
+.theorem-proof,
+.theorem-examples {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.theorem-proof summary,
+.theorem-examples summary {
+  padding: 12px 16px;
+  background: oklch(97% 0.008 150);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  user-select: none;
+}
+
+.theorem-proof summary:hover,
+.theorem-examples summary:hover {
+  background: oklch(95% 0.012 150);
+}
+
+.proof-steps {
+  padding: 16px;
+  background: white;
+}
+
+.proof-step {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid oklch(95% 0.01 150);
+  line-height: 1.8;
+}
+
+.proof-step:last-child {
+  border-bottom: none;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 例题 */
+.example {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid oklch(95% 0.01 150);
+}
+
+.example:last-child {
+  border-bottom: none;
+}
+
+.example-question {
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: oklch(97% 0.01 150);
+  border-radius: 4px;
+}
+
+.example-solution {
+  padding-left: 8px;
+}
+
+.solution-step {
+  padding: 8px 0;
+  line-height: 1.8;
+  border-left: 2px solid oklch(90% 0.02 150);
+  padding-left: 12px;
+  margin: 4px 0;
+}
+
+/* KaTeX 样式 */
+.katex-tex {
+  font-family: 'KaTeX_Main', 'Times New Roman', serif;
+}
+
+.katex-display {
+  margin: 12px 0;
+  text-align: center;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .theorem-page main {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .theorem-body {
+    grid-template-columns: 1fr;
+  }
+
+  .theorem-diagram {
+    order: -1;
+  }
+
+  .theorem-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .theorem-page h1 {
+    font-size: 24px;
+  }
+
+  .theorem-header h3 {
+    font-size: 18px;
+  }
+
+  .theorem-statement {
+    font-size: 14px;
+  }
+
+  .category-filter {
+    gap: 6px;
+  }
+
+  .category-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}

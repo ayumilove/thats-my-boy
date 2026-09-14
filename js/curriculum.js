@@ -12,18 +12,85 @@
     quad: "math",
     equation: "math",
     property: "math",
+    circle: "math",
+    linecircle: "math",
+    cube: "math",
     distance: "physics",
     motion: "physics",
     force: "physics",
   };
+  /* 分类树：按学科领域分组，用于知识图谱导航（与先修 DAG 并存）。 */
+  const categories = {
+    math: [
+      { id: "logic",     name: "常用逻辑用语", icon: "\u2234" },
+      { id: "sets-cat",  name: "集合",         icon: "\u2229" },
+      { id: "ineq",      name: "不等式",       icon: "\u2276" },
+      { id: "func",      name: "函数",         icon: "\u223F" },
+      { id: "eq",        name: "方程",         icon: "\u224D" },
+      { id: "geo-circle",name: "几何\u00B7圆",  icon: "\u2299" },
+      { id: "geo-solid", name: "几何\u00B7立体", icon: "\u25FB" },
+    ],
+    physics: [
+      { id: "kinematics", name: "运动学基础", icon: "\u21D2" },
+      { id: "mechanics",  name: "力学",       icon: "\u2192" },
+    ],
+    chemistry: [{ id: "chem-base", name: "化学基础", icon: "\u2697" }],
+    biology:   [{ id: "bio-base",  name: "生物基础", icon: "\u{1F9EC}" }],
+  };
+  /* 节点 → 分类的映射（每个节点只属于一个分类，形成严格树）。 */
+  const nodeCategory = {
+    proposition: "logic", quantifier: "logic",
+    sets: "sets-cat",
+    sign: "ineq", "ineq-basic": "ineq", quadratic: "ineq", roots: "ineq", "param-quad": "ineq",
+    quad: "func", property: "func",
+    equation: "eq",
+    circle: "geo-circle", linecircle: "geo-circle",
+    cube: "geo-solid",
+    distance: "kinematics", motion: "kinematics", time: "kinematics", rate: "kinematics", algebra: "kinematics", midterm: "kinematics", unequal: "kinematics",
+    force: "mechanics",
+    balance: "chem-base",
+    inheritance: "bio-base",
+  };
   const nodes = [
+    [
+      "proposition",
+      "math",
+      "命题与常用逻辑用语",
+      "四种命题转换、命题的否定与否命题、充分必要条件",
+      [],
+      null,
+      "proposition",
+      "logic",
+    ],
+    [
+      "quantifier",
+      "math",
+      "全称量词与存在量词",
+      "量词命题的否定、全称与存在的互换、量词与参数范围",
+      ["proposition"],
+      null,
+      "quantifier",
+      "logic",
+    ],
     [
       "sets",
       "math",
       "集合与集合运算",
       "交集、并集、补集及元素归属",
-      [],
+      ["proposition"],
       "sets",
+      null,
+      "sets-cat",
+    ],
+    [
+      "ineq-basic",
+      "math",
+      "不等式性质与作差法",
+      "不等式基本性质、作差法比较大小、范围运算与常见陷阱",
+      [],
+      null,
+      "ineq-basic",
+      "ineq",
     ],
     [
       "quad",
@@ -32,14 +99,28 @@
       "开口、顶点、对称轴与退化情况",
       [],
       "quad",
+      null,
+      "func",
+    ],
+    [
+      "param-quad",
+      "math",
+      "含参一元二次不等式",
+      "参数分类讨论、判别式法、二次项系数含参的临界处理",
+      ["ineq-basic", "quad"],
+      null,
+      "param-quad",
+      "ineq",
     ],
     [
       "equation",
       "math",
       "方程与不等式",
       "方程根与函数图像、解集和端点",
-      ["quad"],
+      ["quad", "param-quad"],
       "equation",
+      null,
+      "eq",
     ],
     [
       "property",
@@ -48,6 +129,38 @@
       "定义域、增减、奇偶与对称",
       [],
       "property",
+      null,
+      "func",
+    ],
+    [
+      "circle",
+      "math",
+      "圆与圆周角",
+      "圆心角、同弧圆周角与直径特例",
+      [],
+      "circle",
+      null,
+      "geo-circle",
+    ],
+    [
+      "linecircle",
+      "math",
+      "直线与圆的位置关系",
+      "圆心距、相交相切相离与弦长",
+      ["equation"],
+      "linecircle",
+      null,
+      "geo-circle",
+    ],
+    [
+      "cube",
+      "math",
+      "正方体与线面角",
+      "体对角线、投影与线面所成角",
+      [],
+      "cube",
+      null,
+      "geo-solid",
     ],
     [
       "distance",
@@ -56,6 +169,8 @@
       "标量与矢量、方向、往返运动",
       [],
       "distance",
+      null,
+      "kinematics",
     ],
     [
       "motion",
@@ -64,6 +179,8 @@
       "恒加速度条件、速度时间图与位移",
       ["distance"],
       "motion",
+      null,
+      "kinematics",
     ],
     [
       "force",
@@ -72,6 +189,8 @@
       "合力、质量与牛顿第二定律",
       ["motion"],
       "force",
+      null,
+      "mechanics",
     ],
     [
       "time",
@@ -81,6 +200,7 @@
       [],
       null,
       "time",
+      "kinematics",
     ],
     [
       "rate",
@@ -90,6 +210,7 @@
       ["distance"],
       null,
       "rate",
+      "kinematics",
     ],
     [
       "algebra",
@@ -99,6 +220,7 @@
       ["rate"],
       null,
       "algebra",
+      "kinematics",
     ],
     [
       "midtime",
@@ -108,6 +230,7 @@
       ["time", "rate", "motion"],
       null,
       "midtime",
+      "kinematics",
     ],
     [
       "unequal",
@@ -117,6 +240,7 @@
       ["time", "midtime"],
       null,
       "unequal",
+      "kinematics",
     ],
     [
       "sign",
@@ -126,6 +250,7 @@
       [],
       null,
       "sign",
+      "ineq",
     ],
     [
       "quadratic",
@@ -135,6 +260,7 @@
       ["sign", "quad"],
       null,
       "quadratic",
+      "ineq",
     ],
     [
       "roots",
@@ -144,6 +270,7 @@
       ["quadratic"],
       null,
       "roots",
+      "ineq",
     ],
     [
       "balance",
@@ -153,6 +280,7 @@
       [],
       null,
       "balance",
+      "chem-base",
     ],
     [
       "inheritance",
@@ -162,8 +290,9 @@
       [],
       null,
       "inheritance",
+      "bio-base",
     ],
-  ].map(([id, subject, title, scope, prerequisites, topic, training]) => ({
+  ].map(([id, subject, title, scope, prerequisites, topic, training, category]) => ({
     id,
     subject,
     title,
@@ -171,9 +300,21 @@
     prerequisites,
     topic,
     training,
+    category,
     version: 1,
     stage: "高中及必要前置基础",
   }));
+  /* 按分类生成树结构：{ subjectId: [{ id, name, icon, nodes: [...] }] } */
+  const getTree = () => {
+    const tree = {};
+    for (const [subjectId, cats] of Object.entries(categories)) {
+      tree[subjectId] = cats.map(cat => ({
+        ...cat,
+        nodes: nodes.filter(n => n.category === cat.id),
+      }));
+    }
+    return tree;
+  };
   const get = (id) => nodes.find((n) => n.id === id);
   const href = (id, mistakeId) => {
     const n = get(id);
@@ -185,5 +326,5 @@
         ? "index.html#topic=" + encodeURIComponent(n.topic) + origin
         : null;
   };
-  root.Curriculum = { version: 2, subjects, nodes, get, href, topicSubjects };
+  root.Curriculum = { version: 3, subjects, nodes, categories, get, getTree, href, topicSubjects, nodeCategory };
 })(typeof window === "undefined" ? globalThis : window);

@@ -7,7 +7,7 @@ const topics = [
   // ── 数学实验室 ──────────────────────────────────────────
   {
     id: 'sets', name: '集合与集合运算', icon: '∩',
-    relatedTraining: null,
+    relatedTraining: ['proposition', 'quantifier'],
     desc: '移动一个元素，观察集合之间的关系如何改变。',
     tip: '从"属于谁"开始',
     note: '全集 U 固定为 {1,2,3,4,5,6,7,8}。',
@@ -41,7 +41,7 @@ const topics = [
   },
   {
     id: 'equation', name: '方程与不等式', icon: '≶',
-    relatedTraining: ['sign', 'quadratic', 'roots'],
+    relatedTraining: ['sign', 'quadratic', 'roots', 'ineq-basic', 'param-quad'],
     desc: '把代数问题变成交点与上下位置的比较。',
     tip: '让"解"回到横坐标',
     note: '比较 y=x² 与水平线 y=k；取实数范围。',
@@ -72,6 +72,57 @@ const topics = [
     transfer: '$f(x)=(x-1)^2$ 在 $\mathbb{R}$ 上属于哪一种？',
     topts: ['奇函数', '偶函数', '非奇非偶函数'], ta: 2,
     twhy: '例如 $f(-1)=4$，$f(1)=0$，既不相等也不互为相反数。对称轴 $x=1$ 不是 y 轴。'
+  },
+  {
+    id: 'circle', name: '圆与圆周角', icon: '⊙',
+    relatedTraining: null,
+    desc: '沿弧移动角的顶点，寻找不变的量。',
+    tip: '先问"哪段弧没变"',
+    note: 'A、B 固定在圆上，C 只在不含 A、B 的那段弧上移动。',
+    tool: '圆周角由它所对的弧决定：弧不变，圆周角不变；同弧上的圆周角等于圆心角的一半。',
+    q: '固定 $\\angle AOB=120^\\circ$，把 C 沿不经过 A、B 的弧移动，$\\angle ACB$ 会怎样？',
+    opts: ['恒为 60°，不随 C 的位置改变', '随 C 的位置先增后减', '恒为 120°'], answer: 0,
+    why: 'C 始终对着同一段弧，圆周角是圆心角的一半：$120^\\circ\\div 2=60^\\circ$。',
+    eq: 'C 的位置一直在变，为什么 $\\angle ACB$ 的大小不变？',
+    eopts: ['这段弧没有变，同弧所对的圆周角唯一', '因为 CA 与 CB 始终等长', '因为圆心角也随 C 一起变化'], ea: 0,
+    ewhy: 'A、B 确定了弧，弧没有变。同弧所对的圆周角都等于圆心角的一半，所以 $\\angle ACB=\\tfrac{1}{2}\\angle AOB$，与 C 在弧上的位置无关。',
+    transfer: '把圆心角增大到 $180^\\circ$，使 AB 成为直径，此时 $\\angle ACB$ 是多少？',
+    topts: ['90°', '60°', '180°'], ta: 0,
+    twhy: '直径所对的圆周角是直角：$\\tfrac{1}{2}\\times180^\\circ=90^\\circ$。这是圆周角定理的特例，也是判定直角的常用依据。'
+  },
+  {
+    id: 'linecircle', name: '直线与圆的位置关系', icon: '⊘',
+    relatedTraining: null,
+    desc: '移动一条直线，用圆心距判断相交、相切与相离。',
+    tip: '先算 d，再比 r',
+    note: '直线为 $3x+4y+C=0$，圆心在原点，半径为 r。',
+    tool: '圆心到直线的距离 $d=\\frac{|C|}{\\sqrt{3^2+4^2}}=\\frac{|C|}{5}$。$d<r$ 相交，$d=r$ 相切，$d>r$ 相离。',
+    q: '固定 $r=3$，让 C 从 20 连续减小到 $-20$，公共点个数怎样变化？',
+    opts: ['0 → 1 → 2 → 1 → 0', '始终是 2 个', '0 → 2 → 0'], answer: 0,
+    why: '$C=\\pm15$ 时 $d=3=r$，恰好相切；$|C|<15$ 时 $d<3$，相交；其余情况相离。',
+    eq: '为什么判据是比较 d 与 r，而不是直接比较 C 与 r？',
+    eopts: ['d 才是圆心到直线的距离，垂线段最短，决定能否相交', '因为 C 的正负没有意义', '因为 r 不影响公共点个数'], ea: 0,
+    ewhy: '直线上离圆心最近的点是垂足，距离为 $d=|C|/5$。垂线段最短：$d<r$ 时垂足两侧有点落在圆内，直线与圆相交。C 与 r 数值相同并不能保证相遇。',
+    transfer: '$r=3$ 时直线与圆相切，C 应等于多少？',
+    topts: ['$\\pm 15$', '$\\pm 12$', '$\\pm 20$'], ta: 0,
+    twhy: '令 $d=\\frac{|C|}{5}=r=3$，得 $|C|=15$。相切时弦长 $2\\sqrt{r^2-d^2}=0$，可以互相验证。'
+  },
+  {
+    id: 'cube', name: '正方体与线面角', icon: '◫',
+    relatedTraining: null,
+    desc: '沿体对角线移动 P，观察直线与底面所成的角。',
+    tip: '先找垂线，再找投影',
+    note: '正方体 ABCD-A₁B₁C₁D₁ 棱长记为 a；P′ 是 P 在底面内的投影。',
+    tool: '斜线与平面所成的角，是斜线和它在平面内投影的夹角。竖直高度与斜线长的比值等于这个角的正弦。',
+    q: 'P 沿体对角线 $AC_1$ 从 A 移向 $C_1$，比值 $\\frac{PP\'}{AP}$ 会怎样？',
+    opts: ['保持不变', '越来越大', '先增大后减小'], answer: 0,
+    why: '比值等于线面角的正弦。线面角由直线 $AC_1$ 与底面确定，与 P 的位置无关。',
+    eq: 'AP 和 PP′ 都在变长，为什么它们的比值不变？',
+    eopts: ['Rt△APP′ 总与 Rt△ACC₁ 相似，∠PAP′ 恒等于线面角', '因为 P 始终在正方体内部', '因为 AP 与 PP′ 增大的速度相同'], ea: 0,
+    ewhy: 'P 在 $AC_1$ 上、P′ 在 $AC$ 上，$\\angle PAP\'=\\angle CAC_1$，即线面角 θ。在 Rt△APP′ 中 $\\frac{PP\'}{AP}=\\sin\\theta$，θ 不变，比值不变。',
+    transfer: '体对角线 $AC_1$ 与底面所成角的正切值是多少？（棱长为 a）',
+    topts: ['$\\frac{1}{\\sqrt{2}}\\approx 0.71$', '$\\frac{1}{\\sqrt{3}}\\approx 0.58$', '$\\sqrt{3}\\approx 1.73$'], ta: 0,
+    twhy: '投影为 $AC=\\sqrt{2}a$，高度为 $CC_1=a$，$\\tan\\theta=\\frac{a}{\\sqrt{2}a}=\\frac{1}{\\sqrt{2}}$。$\\frac{1}{\\sqrt{3}}$ 是它的正弦值，别混淆。'
   },
 
   // ── 物理实验室 ──────────────────────────────────────────
