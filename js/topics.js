@@ -145,7 +145,7 @@ const topics = [
   },
   {
     id: 'motion', name: '匀变速直线运动', icon: '⌁',
-    relatedTraining: ['time', 'algebra', 'midtime', 'unequal'],
+    relatedTraining: ['time', 'algebra', 'midtime', 'unequal', 'eq-interval', 'formula-select'],
     desc: '一起观察物体运动、x–t 图像和 v–t 图像。',
     tip: '读懂斜率和面积',
     note: 'x₀=0；加速度恒定；向右为正，可发生反向运动。',
