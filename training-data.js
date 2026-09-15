@@ -662,7 +662,7 @@ window.TRAINING_MODULES = [
     "title": "命题的转换与否定",
     "level": "初中逻辑用语 → 高中命题与量词",
     "goal": "准确写出命题的否定形式，区分否命题与命题的否定，掌握四种命题的转换关系。",
-    "lab": null,
+    "lab": "cond",
     "relatedTopic": "sets",
     "qs": [
       {
@@ -744,7 +744,7 @@ window.TRAINING_MODULES = [
     "title": "不等式性质与作差法",
     "level": "初中不等式 → 高中不等式基础",
     "goal": "用不等式基本性质进行等价变形，用作差法比较大小，避免常见符号错误。",
-    "lab": null,
+    "lab": "gap",
     "relatedTopic": "equation",
     "qs": [
       {
@@ -826,7 +826,7 @@ window.TRAINING_MODULES = [
     "title": "含参一元二次不等式",
     "level": "高中含参不等式 → 分类讨论",
     "goal": "按参数取值分类讨论，掌握二次项系数为零、判别式为零等临界情况的处理。",
-    "lab": null,
+    "lab": "param2",
     "relatedTopic": "equation",
     "qs": [
       {
@@ -908,7 +908,7 @@ window.TRAINING_MODULES = [
     "title": "全称量词与存在量词的否定",
     "level": "高中逻辑用语 → 量词命题",
     "goal": "准确否定含全称/存在量词的命题，理解量词互换与结论否定的关系。",
-    "lab": null,
+    "lab": "quant",
     "relatedTopic": "sets",
     "qs": [
       {
@@ -990,7 +990,7 @@ window.TRAINING_MODULES = [
     "title": "等时位移差与比例推论",
     "level": "初中等差直觉 → 高中匀变速推论",
     "goal": "用 Δs=aT² 由连续相等时间的位移差求加速度，理解比例推论的适用条件。",
-    "lab": null,
+    "lab": "deltas",
     "relatedTopic": "motion",
     "qs": [
       {
@@ -1072,7 +1072,7 @@ window.TRAINING_MODULES = [
     "title": "匀变速四公式的推导与选用",
     "level": "初中公式套用 → 高中按条件选公式",
     "goal": "不翻笔记：由两个基本公式推导其余公式，按“缺什么补什么”选公式，警惕刹车停止陷阱。",
-    "lab": null,
+    "lab": "vtgraph",
     "relatedTopic": "motion",
     "qs": [
       {

@@ -3,12 +3,14 @@ const modules = window.TRAINING_MODULES;
 var fmt = fmtNum;
 const labels = ['定位卡点','基础一','基础二','解释规律','迁移练习','独立复核'];
 let current = 0;
+// 实验台参数默认值：旧存档恢复时也据此补全新增参数，避免滑块与图形失同步。
+const LAB_DEFAULTS={n:4,t1:2,t2:1,L:120,u:2,a:2,k:3,T:2,left:2,right:5,m:-1,c:1,power:2,v1:2,v2:6,cq:1,cw:2,ga:1,gb:-2,pa:2,qa:0,ea:2,et:1,fv:20,fa:-5};
 const persisted = window.LearningBridge?.safely(()=>window.LearningStore.read('training',{})) || {};
 const sessions = modules.map(m => {
   const s=persisted[m.id];
   return s && Number.isInteger(s.step) && s.step>=0 && s.step<6 && s.results && s.lab && (!s.checked||s.results[s.step]) ? {...fresh(),...s} : fresh();
 });
-function fresh() { return { attemptId:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),step:0, selected:null, confidence:'', checked:false, assisted:false, hint:false, stuck:'', results:{}, complete:false, labOpen:false, lab:{n:4,t1:2,t2:1,L:120,u:2,a:2,k:3,T:2,left:2,right:5,m:-1,c:1,power:2,v1:2,v2:6} }; }
+function fresh() { return { attemptId:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),step:0, selected:null, confidence:'', checked:false, assisted:false, hint:false, stuck:'', results:{}, complete:false, labOpen:false, lab:{...LAB_DEFAULTS} }; }
 function persist() { window.LearningBridge?.safely(()=>{const saved=window.LearningStore.read('training',{});saved[modules[current].id]=state();window.LearningStore.write('training',saved);}); }
 function state() { return sessions[current]; }
 function question() { return modules[current].qs[state().step]; }
@@ -84,7 +86,7 @@ function range(key,label,min,max,step=1){return `<label class="control"><span>${
 function readings(values){return '<div class="lab-readings">'+values.map(([k,v])=>`<div class="lab-reading">${k}<b>${v}</b></div>`).join('')+'</div>';}
 function renderLab() {
   const s=state(),kind=modules[current].lab;
-  s.lab=window.ScienceLabs.defaults(s.lab);
+  s.lab={...LAB_DEFAULTS,...window.ScienceLabs.defaults(s.lab)};
   if(!s.checked&&!s.labOpen&&!s.complete){
     el('lab-content').innerHTML=`<div class="lab-lock"><strong>先判断，再用图形验证</strong><p>选好一个答案后，可以打开实验帮助思考；本题将记为\u201c使用辅助\u201d。也可以独立提交后再观察。</p><button class="quiet" id="open-lab" ${s.selected===null?'disabled':''}>打开实验</button></div>`;
     el('open-lab').onclick=()=>{s.labOpen=true;s.assisted=true;renderQuestion();renderLab()};return;
@@ -98,8 +100,34 @@ function renderLab() {
   if(kind==='sign')controls=range('m','同乘的数',-3,3,.5);
   if(kind==='quadratic')controls=range('c','系数 a',-3,3,.5);
   if(kind==='roots')controls=range('power','根 1 的重数',1,4);
+  if(kind==='cond')controls=range('cq','Q 左端',-1,5,.5)+range('cw','Q 宽度',0.5,4,.5);
+  if(kind==='gap')controls=range('ga','数 a',-5,5,.5)+range('gb','数 b',-5,5,.5);
+  if(kind==='param2')controls=range('pa','参数 a',-2,4,.5);
+  if(kind==='quant')controls=range('qa','参数 a',-3,5,.5);
+  if(kind==='deltas')controls=range('ea','加速度 / m/s²',0.5,4,.25)+range('et','每段时长 T / s',1,2,.5);
+  if(kind==='vtgraph')controls=range('fv','初速度 v₀ / m/s',0,20,1)+range('fa','加速度 / m/s²',-5,2,.5);
   el('lab-content').innerHTML='<div id="lab-figure"></div><div id="lab-values"></div><p class="lab-caption" id="lab-description"></p>'+controls;
-  drawLab(); document.querySelectorAll('[data-lab]').forEach(e=>e.oninput=()=>{s.lab[e.dataset.lab]=Number(e.value);const output=el('value-'+e.dataset.lab);if(output)output.textContent=fmt(Number(e.value));drawLab();persist()});
+  drawLab(); bindLabDrag(); document.querySelectorAll('[data-lab]').forEach(e=>e.oninput=()=>{s.lab[e.dataset.lab]=Number(e.value);const output=el('value-'+e.dataset.lab);if(output)output.textContent=fmt(Number(e.value));drawLab();persist()});
+}
+// SVG 手柄拖拽：pointerdown 委托在 #lab-figure，move/up 挂在 window 且只绑定一次（bindLabDrag._bound），
+// 拖拽途中 drawLab 重建图形、指针移出图形区域都不会丢事件；labDrag 引用的旧手柄 dataset 在内存中仍可读。
+// 屏幕坐标经 getScreenCTM().inverse() 换算为 viewBox 坐标，避免 letterbox 偏移。
+let labDrag=null;
+function bindLabDrag() {
+  const fig=el('lab-figure');if(!fig)return;
+  fig.onpointerdown=ev=>{const h=ev.target.closest('.lab-handle');if(!h)return;labDrag=h;ev.preventDefault();};
+  if(!window.addEventListener)return;// 无事件系统（数值验证脚本）时跳过
+  if(bindLabDrag._bound)return;bindLabDrag._bound=true;
+  const toView=(ev,svg)=>{const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());};
+  window.addEventListener('pointermove',ev=>{
+    if(!labDrag)return;const fig=el('lab-figure');if(!fig)return;const svg=fig.querySelector('svg');if(!svg)return;
+    const min=Number(labDrag.dataset.min),max=Number(labDrag.dataset.max),x0=Number(labDrag.dataset.x0),xs=Number(labDrag.dataset.xs)||1;
+    let v=min+(toView(ev,svg).x-x0)/xs;v=Math.min(max,Math.max(min,v));v=Math.round(v*20)/20;
+    const s=state();s.lab[labDrag.dataset.key]=v;const out=el('value-'+labDrag.dataset.key);if(out)out.textContent=fmt(v);
+    drawLab();persist();
+  });
+  window.addEventListener('pointerup',()=>{labDrag=null;});
+  window.addEventListener('pointercancel',()=>{labDrag=null;});
 }
 // Pure calculations are shared with the numerical verification script.
 function segmentModel(L,t1,t2) {
@@ -153,6 +181,120 @@ function drawLab() {
     const positive=kind==='quadratic'?(p.c>0?'(\u2212\u221e,1) \u222a (3,+\u221e)':p.c<0?'(1,3)':'\u2205'):(p.power%2?'(\u2212\u221e,1) \u222a (3,+\u221e)':'(3,+\u221e)');
     values=[['y > 0 \u7684\u89e3\u96c6',positive],['x=1 \u4e24\u4fa7\u7b26\u53f7',kind==='quadratic'?(p.c===0?'\u4e24\u4fa7\u90fd\u4e3a\u96f6':'\u53d8\u53f7'):(p.power%2?'\u53d8\u53f7':'\u4e0d\u53d8\u53f7')]];
     note=kind==='quadratic'?'\u8d1f\u7cfb\u6570\u65f6\u6b63\u8d1f\u533a\u95f4\u7ffb\u8f6c\uff1ba=0 \u65f6\u6574\u6761\u66f2\u7ebf\u5728\u6a2a\u8f74\u4e0a\u3002\u6b64\u5904\u53ea\u663e\u793a\u4e25\u683c\u5927\u4e8e\u96f6\u7684\u89e3\u96c6\u3002':'\u56fa\u5b9a\u6700\u9ad8\u6b21\u9879\u7cfb\u6570\u4e3a\u6b63\u3002\u6839 1 \u7684\u91cd\u6570\u4e3a\u5076\u6570\u65f6\u4e0d\u53d8\u53f7\uff0c\u4e3a\u5947\u6570\u65f6\u53d8\u53f7\u3002\u82e5\u9898\u76ee\u542b\u7b49\u53f7\uff0c\u8fd8\u5fc5\u987b\u7eb3\u5165\u76f8\u5e94\u96f6\u70b9\u3002\u56fe\u5f62\u8d85\u51fa\u7eb5\u5411\u7a97\u53e3\u7684\u90e8\u5206\u88ab\u88c1\u5207\u3002';
+  }
+  if(kind==='cond'){
+    const cq=p.cq??1,cw=p.cw??2;
+    const X=x=>75+(x+3)*75;
+    art=svgText(30,26,'P（绿）：使 p 成立的 x；Q（橙）：使 q 成立的 x')
+      +`<rect x="${X(1)}" y="48" width="${X(3)-X(1)}" height="64" fill="#166534" opacity=".16"/>`
+      +`<rect x="${X(cq)}" y="78" width="${Math.max(2,X(cq+cw)-X(cq))}" height="64" fill="#b45309" opacity=".16"/>`
+      +svgLine(40,110,560,110);
+    for(let x=-3;x<=7;x++)art+=svgLine(X(x),104,X(x),116)+svgText(X(x)-5,146,x);
+    art+=svgDot(X(1),110,'#166534')+svgDot(X(3),110,'#166534')
+      +`<circle class="lab-handle" data-key="cq" data-min="-1" data-max="5" data-x0="${X(-1)}" data-xs="75" cx="${X(cq)}" cy="110" r="10" fill="#b45309" style="cursor:grab"/>`
+      +svgText(X(cq)-30,180,`Q 左端 ${fmt(cq)}`)+svgText(40,210,'拖动橙点与滑块改变 Q；p⇒q 对应 P⊂Q');
+    const pSubQ=cq<=1+1e-9&&cq+cw>=3-1e-9, qSubP=cq>=1-1e-9&&cq+cw<=3+1e-9;
+    let rel='P 与 Q 互不包含：p 是 q 的既不充分也不必要条件';
+    if(pSubQ&&qSubP)rel='P=Q：p 与 q 互为充要条件';
+    else if(pSubQ)rel='P⊂Q：p⇒q，p 是 q 的充分不必要条件';
+    else if(qSubP)rel='Q⊂P：q⇒p，p 是 q 的必要不充分条件';
+    values=[['P ⊆ Q ?',pSubQ?'是':'否'],['Q ⊆ P ?',qSubP?'是':'否'],['判定',rel]];
+    note='充分条件的集合语言：p⇒q 等价于 P⊆Q。拖动 Q 观察四种关系如何随位置与宽度变化；两个端点恰好对齐时就是充要。';
+  }
+  if(kind==='gap'){
+    const ga=p.ga??1,gb=p.gb??-2;
+    const X=v=>40+(v+6)*24.5,Y1=70,Y2=190;
+    art=svgText(30,24,'上行：原数；下行：各自的平方。虚线展示平方后的落点')
+      +svgLine(40,Y1,575,Y1)+svgLine(40,Y2,575,Y2);
+    [-5,0,5].forEach(v=>art+=svgLine(X(v),Y1-6,X(v),Y1+6)+svgText(X(v)-8,Y1+24,v));
+    [0,5,10,15,20,25].forEach(v=>art+=svgLine(X(v),Y2-6,X(v),Y2+6)+svgText(X(v)-10,Y2+28,v));
+    art+=svgText(30,Y1-12,'a、b')+svgText(30,Y2-12,'a²、b²')
+      +`<line x1="${X(ga)}" y1="${Y1}" x2="${X(ga*ga)}" y2="${Y2}" stroke="#166534" stroke-width="1" stroke-dasharray="4 4"/>`
+      +`<line x1="${X(gb)}" y1="${Y1}" x2="${X(gb*gb)}" y2="${Y2}" stroke="#b45309" stroke-width="1" stroke-dasharray="4 4"/>`
+      +`<circle class="lab-handle" data-key="ga" data-min="-5" data-max="5" data-x0="${X(-5)}" data-xs="24.5" cx="${X(ga)}" cy="${Y1}" r="9" fill="#166534" style="cursor:grab"/>`
+      +`<circle class="lab-handle" data-key="gb" data-min="-5" data-max="5" data-x0="${X(-5)}" data-xs="24.5" cx="${X(gb)}" cy="${Y1}" r="9" fill="#b45309" style="cursor:grab"/>`
+      +svgDot(X(ga*ga),Y2,'#166534')+svgDot(X(gb*gb),Y2,'#b45309');
+    const diff=ga-gb,sq=ga*ga-gb*gb;
+    values=[['a − b',fmt(diff)+(diff>0?' > 0':diff<0?' < 0':' = 0')],['a² − b²',fmt(sq)],['(a−b)(a+b)',`${fmt(diff)}×${fmt(ga+gb)} = ${fmt(sq)}`],['结论',diff>0&&sq>0?'a>b 且 a²>b²':diff>0?'a>b 但 a²<b²（异号）':diff<0&&sq>0?'a<b 但 a²>b²（异号）':'a<b 且 a²<b²']];
+    note='作差法：a²−b²=(a−b)(a+b)，差的符号由两个因子共同决定。拖动两数到一正一负，看“大数的平方反而小”；只有 a>b>0（同非负）才保证 a²>b²。';
+  }
+  if(kind==='param2'){
+    const pa=p.pa??2;
+    const f=x=>(x-1)*(x-pa);
+    const X=x=>70+(x+2)*74,Y=y=>115-y*12;
+    art=svgText(30,26,`y=(x−1)(x−${fmt(pa)})　两根：1 与 ${fmt(pa)}`)
+      +'<defs><clipPath id="p2clip"><rect x="70" y="32" width="485" height="178"/></clipPath></defs>'
+      +svgLine(70,115,555,115)+svgLine(X(0),32,X(0),210);
+    for(let x=-2;x<=5;x++)art+=svgLine(X(x),111,X(x),119)+svgText(X(x)-5,230,x);
+    const path=Array.from({length:281},(_,i)=>{const x=-2+i/50;return (i?'L':'M')+X(x)+','+Y(f(x))}).join(' ');
+    art+=`<path d="${path}" fill="none" stroke="#166534" stroke-width="3" clip-path="url(#p2clip)"/>`;
+    const lo=Math.min(1,pa),hi=Math.max(1,pa);
+    if(pa!==1)art+=svgLine(X(lo),115,X(hi),115,'#16a34a',9);
+    art+=svgDot(X(1),115,'#334155')
+      +`<circle class="lab-handle" data-key="pa" data-min="-2" data-max="4" data-x0="${X(-2)}" data-xs="74" cx="${X(pa)}" cy="115" r="10" fill="#b45309" style="cursor:grab"/>`
+      +svgText(35,255,'拖动橙点改变参数 a；绿线是 y<0 的解集');
+    values=[['两根',`${fmt(1)} 与 ${fmt(pa)}`],['根序',pa>1?'a>1：1 在左':pa<1?'a<1：a 在左':'a=1：重根'],['y<0 解集',pa>1?`(1, ${fmt(pa)})`:pa<1?`(${fmt(pa)}, 1)`:'∅（严格不等式）']];
+    note='小于零取两根之间——但“哪根在左”由参数决定。拖动 a 穿过 1：两根互换、解集翻转；a=1 时两根重合，区间缩成一点，严格小于零无解。';
+  }
+  if(kind==='quant'){
+    const qa=p.qa??0;
+    const Xu=x=>40+x*95,Yu=y=>98-y*8;
+    const Xl=x=>330+(x+1.2)*100,Yl=y=>232-y*8;
+    art=svgText(40,24,'上：∀x∈[1,2]，x²−a≥0？　下：∃x∈[0,1]，x²+x+a<0？');
+    // 上面板
+    art+=`<rect x="${Xu(1)}" y="34" width="${Xu(2)-Xu(1)}" height="72" fill="${qa<=1?'#16a34a':'#dc2626'}" opacity=".14"/>`
+      +svgLine(35,98,300,98);
+    let up='';for(let x=0;x<=2.6;x+=.1)up+=(up?'L':'M')+Xu(x)+','+Yu(x*x-qa);
+    art+=`<path d="${up}" fill="none" stroke="#166534" stroke-width="2.5"/>`
+      +svgText(40,120,`f(1)=1−a=${fmt(1-qa)} ${qa<=1?'≥ 0 ✓ 全部成立':'< 0 ✗ 存在反例'}`);
+    // 下面板
+    art+=`<rect x="${Xl(0)}" y="168" width="${Xl(1)-Xl(0)}" height="70" fill="${qa<0?'#16a34a':'#dc2626'}" opacity=".14"/>`
+      +svgLine(325,232,590,232);
+    let low='';for(let x=-1.2;x<=1.2;x+=.08)low+=(low?'L':'M')+Xl(x)+','+Yl(x*x+x+qa);
+    art+=`<path d="${low}" fill="none" stroke="#b45309" stroke-width="2.5"/>`
+      +svgText(335,254,`f(0)=a=${fmt(qa)} ${qa<0?'< 0 ✓ 找得到':'≥ 0 ✗ 找不到'}`);
+    values=[['∀x∈[1,2]，x²−a≥0',qa<=1?'真：区间最低点 f(1)≥0':'假：最低点 f(1)<0'],['∃x∈[0,1]，x²+x+a<0',qa<0?'真：f(0)<0 即可':'假：最小值 f(0)≥0'],['否定的量词互换','∀↔∃，结论同时取反']];
+    note='全称命题看区间内最低点（函数最小值），存在命题只需找到一个点。同一个 a 同时驱动两个命题：a 滑过 1 和 0 的瞬间，两个命题的真假先后翻转。';
+  }
+  if(kind==='deltas'){
+    const ea=p.ea??2,et=p.et??1,v0=1;
+    const x=t=>v0*t+.5*ea*t*t,T3=3*et,maxS=x(T3)+.1;
+    const Xt=t=>45+t/T3*260,Yx=y=>215-y/maxS*150;
+    art=svgText(30,22,'左：x–t 图（三段等时）；右：各段位移柱状图');
+    art+=svgLine(40,215,315,215)+svgLine(45,55,45,215);
+    [0,1,2,3].forEach(i=>art+=svgLine(Xt(i*et),211,Xt(i*et),219)+svgText(Xt(i*et)-10,237,fmt(i*et)+'s'));
+    for(let i=0;i<3;i++)art+=`<rect x="${Xt(i*et)}" y="55" width="${Xt((i+1)*et)-Xt(i*et)}" height="160" fill="${i%2?'#b45309':'#166534'}" opacity=".08"/>`;
+    let curve='';for(let t=0;t<=T3;t+=T3/60)curve+=(curve?'L':'M')+Xt(t)+','+Yx(x(t));
+    art+=`<path d="${curve}" fill="none" stroke="#334155" stroke-width="2.5"/>`;
+    const s1=x(et)-x(0),s2=x(2*et)-x(et),s3=x(3*et)-x(2*et),maxBar=Math.max(s1,s2,s3);
+    [s1,s2,s3].forEach((sv,i)=>{const bx=345+i*72,bh=Math.max(2,sv/maxBar*150);art+=`<rect x="${bx}" y="${215-bh}" width="55" height="${bh}" fill="${i%2?'#b45309':'#166534'}" opacity=".85"/>`+svgText(bx+4,208-bh,fmt(sv));});
+    art+=svgText(345,244,'s₁')+svgText(417,244,'s₂')+svgText(489,244,'s₃')
+      +svgText(345,256,`相邻差都 = aT² = ${fmt(ea*et*et)}`);
+    values=[['s₁ / s₂ / s₃',`${fmt(s1)} / ${fmt(s2)} / ${fmt(s3)}`],['s₂−s₁',fmt(s2-s1)+' m'],['s₃−s₂',fmt(s3-s2)+' m'],['aT²',fmt(ea*et*et)+' m/s² × s²']];
+    note='拖动加速度或每段时长：柱高在变，但相邻差始终等于 aT²——推导时初速度 v₀ 在两段相减中消去，所以差与 v₀ 无关。自由落体 g=10、T=1 s 时，相邻一秒位移差恒为 10 m。';
+  }
+  if(kind==='vtgraph'){
+    const fv=p.fv??20,fa=p.fa??-5,TT=8;
+    const tStop=fa<0?fv/(-fa):Infinity;
+    const vMax=Math.max(fv+fa*TT,fv,10)+3;
+    const X=t=>55+t/TT*495,Y=v=>200-v/vMax*155;
+    art=svgText(30,22,'v–t 图：斜率 = a，面积 = 位移；红虚线是“不检验停止时间”的错误延伸')
+      +svgLine(50,200,555,200)+svgLine(55,30,55,200);
+    [0,2,4,6,8].forEach(t=>art+=svgLine(X(t),196,X(t),204)+svgText(X(t)-8,222,t+'s'));
+    const vAt=t=>fv+fa*t;
+    let vl='';const tEnd=fa<0?Math.min(TT,tStop):TT;
+    for(let t=0;t<=tEnd+1e-9;t+=tEnd/60)vl+=(vl?'L':'M')+X(t)+','+Y(vAt(t));
+    art+=`<path d="${vl}" fill="none" stroke="#166534" stroke-width="3"/>`;
+    if(fa<0&&tStop<TT){art+=svgLine(X(tStop),200,X(tStop),Y(0),'#334155',1)+svgText(X(tStop)-30,214,`停于 ${fmt(tStop)}s`);
+      let bad='';for(let t=tStop;t<=TT;t+=TT/60)bad+='L'+X(t)+','+Y(vAt(t));
+      art+=`<path d="M${X(tStop)},${Y(0)} ${bad}" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+      art+=svgLine(X(tStop),200,X(TT),200,'#166534',3);
+    }
+    art+=svgDot(X(0),Y(fv),'#334155')+svgText(60,Y(fv)-8,`v₀=${fmt(fv)}`);
+    const xReal=fa>=0?fv*TT+.5*fa*TT*TT:(tStop<=TT?fv*fv/(2*(-fa)):fv*tStop+.5*fa*tStop*tStop);
+    const xNaive=fv*TT+.5*fa*TT*TT;
+    values=[['停止时间',fa<0?fmt(tStop)+' s':'8 s 内不停'],['实际位移（8 s 内）',fmt(xReal)+' m'],['直接套 8 s 公式',fa<0?fmt(xNaive)+' m（错误）':fmt(xNaive)+' m'],['刹车距离 v₀²/2|a|',fa<0?fmt(fv*fv/(2*(-fa)))+' m':'—']];
+    note='刹车题先算停止时间 v₀/|a|：车停下后速度保持 0，实线贴轴。红虚线是把公式硬套到 8 s 的结果——等于假设车倒车回去，位移偏小。求刹车距离用 v²−v₀²=2ax（不含 t）一步到位，再用“梯形面积”互相检验。';
   }
   el('lab-figure').innerHTML=svgWrap(art,260,modules[current].title);el('lab-values').innerHTML=readings(values);el('lab-description').textContent=note;
 }
